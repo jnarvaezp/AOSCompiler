@@ -24,7 +24,7 @@ class AOKP():
 
 	AboutDesc = "Type some things here about the rom and about it's design!"
 
-	# GeekRom Images
+	# Aokp Images
 	Images = ["screeny1.jpg", "screeny2.jpg", "screeny3.jpg"]
 	ScreenList = []
 	for i in Images:
@@ -57,10 +57,16 @@ class AOKP():
 		Parser().write("manuf", m)
 		Globals.TERM.feed_child('clear\n')
 		if not os.path.exists("%s/vendor/%s" % (r, m)):
-			Globals.TERM.feed_child("cd %s/device/%s/%s/\n" % (r, m, d))
-			Globals.TERM.feed_child('clear\n')
-			Globals.TERM.feed_child('./extract-files.sh\n')
-			Globals.TERM.feed_child("cd %s\n" % r)
+			if Utils().is_adb_running() == True:
+				Globals.TERM.feed_child("cd %s/device/%s/%s/\n" % (r, m, d))
+				Globals.TERM.feed_child('clear\n')
+				Globals.TERM.feed_child('./extract-files.sh\n')
+				Globals.TERM.feed_child("cd %s\n" % r)
+			else:
+				Utils().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb to setup vendor files.\n\nIs this something you are going to do yourself?\n\nPlease try again.")
+				Globals.TERM.set_background_saturation(1.0)
+				Globals.TERM.feed_child('clear\n')
+				return
 
 		if not os.path.exists("%s/cacheran" % Globals.myCONF_DIR):
 			file("%s/cacheran" % Globals.myCONF_DIR, 'w').close()

@@ -25,7 +25,7 @@ class CyanogenMod():
 
 	AboutDesc = "Type some things here about the rom and about it's design!"
 
-	# GeekRom Images
+	# CyanogenMod Images
 	Images = ["screeny1.jpg", "screeny2.jpg", "screeny3.jpg"]
 	ScreenList = []
 	for i in Images:
@@ -71,6 +71,7 @@ class CyanogenMod():
 					Utils().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb to setup vendor files.\n\nIs this something you are going to do yourself?\n\nPlease try again.")
 					Globals.TERM.set_background_saturation(1.0)
 					Globals.TERM.feed_child('clear\n')
+					return
 
 			if not os.path.exists("%s/cacheran" % Globals.myCONF_DIR) and b is not "gingerbread":
 				os.chdir(r)
@@ -88,5 +89,4 @@ class CyanogenMod():
 			Globals.TERM.feed_child("lunch cyanogen_%s-eng\n" % d)
 		else:
 			Globals.TERM.feed_child("lunch cm_%s-userdebug\n" % d)
-		Globals.TERM.feed_child("lunch cm_%s-userdebug\n" % d)
 		Globals.TERM.feed_child("time make -j%s otapackage\n" % Globals.PROCESSORS)

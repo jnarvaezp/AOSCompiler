@@ -82,10 +82,6 @@ class Utils():
 			if b == "ics" or b == "jellybean":
 				FILE = "cm.mk"
 
-		if a == "GR":
-			if b == "master":
-				FILE = "geek.mk"
-
 		return FILE
 
 	def getManu(self, device):
@@ -140,10 +136,6 @@ class Utils():
 			from projects.CodenameAndroid import CodenameAndroid as CNA
 			for x in CNA.BranchList:
 				branchList.append(x)
-		elif rom == "GR":
-			from projects.GeekRom import GeekRom as GR
-			for x in GR.BranchList:
-				branchList.append(x)
 		else:
 			return
 
@@ -189,10 +181,6 @@ class Utils():
 			from projects.AOSP import AOSP as AOSP
 			ImageList = AOSP.ScreenList
 			Desc = AOSP.AboutDesc
-		elif a == "GR":
-			from projects.GeekRom import GeekRom as GR
-			ImageList = GR.ScreenList
-			Desc = GR.AboutDesc
 		else:
 			return
 		dialog = gtk.Dialog("About: %s" % r, None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
@@ -344,9 +332,6 @@ class Utils():
 		elif a == "CNA":
 			from projects.CodenameAndroid import CodenameAndroid as CNA
 			BR = CNA().getBranch(arg)
-		elif a == "GR":
-			from projects.GeekRom import GeekRom as GR
-			BR = GR().getBranch(arg)
 		elif a == "AOSP":
 			from projects.AOSP import AOSP as AOSP
 			BR = AOSP().getBranch(arg)
