@@ -450,7 +450,8 @@ class Utils():
 		List = []
 		global ADB_TYPE
 		ADB_TYPE = None
-		ADB_LIST = ["All", "Verbose", "Debug", "Info", "Warning", "Error", "Fatal", "Silent"]
+		ADB_LIST = ["All", "Verbose", "Debug", "Info", "Warning", "Error", "Fatal"]
+		TIP_LIST = ["Show all log output", "Only show verbose, low priority output", "Only show debug output", "Show information output", "Show app and package warnings", "Show application and package errors", "Show critial or fatal errors"]
 		for x in ADB_LIST:
 			List.append(x)
 
@@ -461,7 +462,7 @@ class Utils():
 				print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
 
 		dialog = gtk.Dialog("Choose adb type", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-		dialog.set_size_request(260, 285)
+		dialog.set_size_request(225, 233)
 		dialog.set_resizable(False)
 
 		scroll = gtk.ScrolledWindow()
@@ -482,8 +483,10 @@ class Utils():
 		for radio in List:
 
 			button_count += 1
+			tooltip = gtk.Tooltips()
 			button = gtk.RadioButton(group=device, label="%s" % (radio))
 			button.connect("toggled", callback_branch, radio)
+			tooltip.set_tip(button, TIP_LIST[button_count-1])
 			table.attach(button, 0, 1, button_count-1, button_count, xoptions=gtk.FILL, yoptions=gtk.FILL)
 			button.show()
 
