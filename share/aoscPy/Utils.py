@@ -445,6 +445,59 @@ class Utils():
 			Utils().CDial(gtk.MESSAGE_INFO, "Skipping this", "No changes have been made!")
 		dialog.destroy()
 
+	def choose_adb(self):
+		VERBOSE = Parser().read("verbose")
+		List = []
+		global ADB_TYPE
+		ADB_TYPE = None
+		ADB_LIST = ["All", "Verbose", "Debug", "Info", "Warning", "Error", "Fatal", "Silent"]
+		for x in ADB_LIST:
+			List.append(x)
+
+		def callback_branch(widget, data=None):
+			global ADB_TYPE
+			ADB_TYPE = data
+			if VERBOSE == True:
+				print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
+
+		dialog = gtk.Dialog("Choose adb type", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog.set_size_request(260, 285)
+		dialog.set_resizable(False)
+
+		scroll = gtk.ScrolledWindow()
+		scroll.set_border_width(10)
+		scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+		dialog.vbox.pack_start(scroll, True, True, 0)
+		scroll.show()
+
+		table = gtk.Table(2, 1, False)
+		table.set_row_spacings(0)
+
+		scroll.add_with_viewport(table)
+		table.show()
+
+		device = gtk.RadioButton(None, None)
+
+		button_count = 0
+		for radio in List:
+
+			button_count += 1
+			button = gtk.RadioButton(group=device, label="%s" % (radio))
+			button.connect("toggled", callback_branch, radio)
+			table.attach(button, 0, 1, button_count-1, button_count, xoptions=gtk.FILL, yoptions=gtk.FILL)
+			button.show()
+
+		r = dialog.run()
+		dialog.destroy()
+
+		if r == gtk.RESPONSE_ACCEPT:
+			if ADB_TYPE:
+				return ADB_TYPE[0]
+			else:
+				return None
+		else:
+			return None
+
 	def CDial(self, dialog_type, title, message):
 		dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, type=dialog_type, buttons=gtk.BUTTONS_OK)
 		dialog.set_markup(title)

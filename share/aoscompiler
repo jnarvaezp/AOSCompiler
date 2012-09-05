@@ -205,9 +205,16 @@ def remove_config():
 
 def start_adb():
 	if Utils().is_adb_running() == True:
-		Globals.TERM.set_background_saturation(0.3)
-		Globals.TERM.fork_command('bash')
-		Globals.TERM.feed_child("adb logcat\n")
+		x = Utils().choose_adb()
+		if x is not None:
+			Globals.TERM.set_background_saturation(0.3)
+			Globals.TERM.fork_command('bash')
+			if x is "A":
+				Globals.TERM.feed_child("adb logcat\n")
+			else:
+				Globals.TERM.feed_child("adb logcat |grep \"%s/\"\n" % x)
+		else:
+			return
 	else:
 		Utils().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb running to start, start it.\n\nPlease try again.")
 		Globals.TERM.set_background_saturation(1.0)
