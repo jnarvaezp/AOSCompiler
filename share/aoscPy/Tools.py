@@ -7,4 +7,4 @@ class Tools():
 		for line in open('/proc/cpuinfo', 'r'):
 			if line.startswith('processor'):
 				count += 1
-		return count
+		return count+1
