@@ -67,7 +67,7 @@ class Utils():
 					label.set_padding(5, 5)
 					table.attach(label, 0, 1, count-1, count)
 		except IOError:
-			Globals().CDial(gtk.MESSAGE_ERROR, "Failed reading configuration", "Can't currently read the config file.\n\nIs it open somewhere else?\n\nPlease try again.")
+			Utils().CDial(gtk.MESSAGE_ERROR, "Failed reading configuration", "Can't currently read the config file.\n\nIs it open somewhere else?\n\nPlease try again.")
 
 		dialog.run()
 		dialog.destroy()
@@ -208,7 +208,11 @@ class Utils():
 			count+=1
 			image = gtk.Image()
 			image.show()
-			imgurl = urllib2.urlopen(i)
+			try:
+				imgurl = urllib2.urlopen(i)
+			except:
+				Utils().CDial(gtk.MESSAGE_ERROR, "Failed reading url", "Can't read\n\n%s\n\nMaybe something is wrong with the server, or the internet connection.\n\nPlease try again later." % i)
+				return
 			loader = gtk.gdk.PixbufLoader()
 			loader.write(imgurl.read())
 			loader.close()

@@ -26,7 +26,7 @@ class CyanogenMod():
 	AboutDesc = "This is cyanogenmod, this is subject to changes."
 
 	# CyanogenMod Images
-	Images = ["screeny1.jpg", "screeny2.jpg", "screeny3.jpg", "screeny4.jpg", "screeny5.jpg", "screeny6.jpg"]
+	Images = ["screeny1.png", "screeny2.png", "screeny3.png", "screeny4.png", "screeny5.png", "screeny6.png"]
 	ScreenList = []
 	for i in Images:
 		ScreenList.append("%s/cm/%s" % (Globals.myScreenURL, i))
