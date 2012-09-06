@@ -365,6 +365,9 @@ class Utils():
 		p = Parser().read("repo_path")
 		r = Parser().read("rom_dist")
 		a = Parser().read("rom_abrv")
+		(x, y) = Globals.MAIN_WIN.get_position()
+		here = int(x)
+		there = int(y)
 		Globals.branchLab.set_markup("<small>Branch: <b>%s</b></small>" % b)
 		Globals.LinkContact.set_markup("<small>Contact</small>")
 		Globals.runLab.set_markup("<small>Run</small>")
@@ -377,15 +380,21 @@ class Utils():
 		Globals.makeLab.set_markup("<small>Make jobs</small>")
 		Globals.compileLab.set_markup("<small>Compile</small>")
 		Globals.runFrameLab.set_markup("<small>Run options</small>")
+		if Parser().read("term_toggle") == True:
+			Globals.toggleTermLab.set_markup("<small>Term <b>On</b></small>")
+		else:
+			Globals.toggleTermLab.set_markup("<small>Term <b>Off</b></small>")
+		Globals.contactFrameLab.set_markup("<small>Contact</small>")
 		Globals.buildFrameLab.set_markup("<small>Build options</small>")
 		Globals.syncLab.set_markup("<small>Sync</small>")
 		Globals.clobberLab.set_markup("<small>Clobber</small>")
 		Globals.build_appLab.set_markup("<small><small>Build specific <b>app/binary</b> here. :: <b>enter</b> ::</small></small>")
 		Globals.KEY_BIND_INFO.set_markup("<small><small>[CTL-L + (<b>v</b> = View config, <b>a</b> = Start adb, <b>m</b> = Main start/stop, <b>s</b> = Sync, <b>b</b> = build/compile, <b>r</b> = Repo path) <b>esc</b> = Quit]</small></small>")
-		Globals.MAIN_INFO.set_markup("<small>Repo path: <b>%s</b></small>" % p)
 		if not os.path.exists(p):
 			Utils().CDial(gtk.MESSAGE_ERROR, "No Folder Found!", "Path: %s\n\nDoes not exist and it needs to to continue." % p)
 			Utils().choose_repo_path()
+
+		Globals.MAIN_WIN.move(here, there)
 
 	def run_custom_device(self):
 		title = "Setup custom device"
@@ -481,7 +490,6 @@ class Utils():
 
 		button_count = 0
 		for radio in List:
-
 			button_count += 1
 			tooltip = gtk.Tooltips()
 			button = gtk.RadioButton(group=device, label="%s" % (radio))

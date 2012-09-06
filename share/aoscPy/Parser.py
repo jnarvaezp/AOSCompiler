@@ -41,6 +41,9 @@ class Parser():
 			getMakeJobs = config.get(title, 'make_jobs')
 			getManuf = config.get(title, 'manuf')
 			getVerbose = config.get(title, 'verbose')
+			getTermToggle = config.get(title, 'term_toggle')
+			getWinX = config.get(title, 'win_x')
+			getWinY = config.get(title, 'win_y')
 
 		except:
 			getRomDist = None
@@ -52,6 +55,11 @@ class Parser():
 			getMakeJobs = None
 			getManuf = None
 			getVerbose = None
+			getTermToggle = None
+			getWinX = None
+			getWinY = None
+			getWinW = None
+			getWinH = None
 
 		config = ConfigParser.RawConfigParser()
 		config.add_section(title)
@@ -111,6 +119,27 @@ class Parser():
 			config.set(title, 'manuf', getManuf)
 		else:
 			config.set(title, 'manuf', default)
+
+		if arg == "term_toggle":
+			config.set(title, 'term_toggle', value)
+		elif getTermToggle:
+			config.set(title, 'term_toggle', getTermToggle)
+		else:
+			config.set(title, 'term_toggle', default)
+
+		if arg == "win_x":
+			config.set(title, 'win_x', value)
+		elif getWinX:
+			config.set(title, 'win_x', getWinX)
+		else:
+			config.set(title, 'win_x', 50)
+
+		if arg == "win_y":
+			config.set(title, 'win_y', value)
+		elif getWinY:
+			config.set(title, 'win_y', getWinY)
+		else:
+			config.set(title, 'win_y', 50)
 
 		if arg == "verbose":
 			config.set(title, 'verbose', value)

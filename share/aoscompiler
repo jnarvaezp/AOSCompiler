@@ -26,6 +26,12 @@ from aoscPy.InstallPackages import InstallPackages
 # Helper functions
 ######################################################################
 
+MAIN_VBOX = gtk.VBox(False, 0)
+toptable = gtk.Table(1, 3, False)
+table = gtk.Table(1, 3, False)
+tableB = gtk.Table(1, 2, False)
+optFrame = gtk.Frame()
+
 def openBuildFolder():
 	r = Parser().read("repo_path")
 	d = Parser().read("device")
@@ -221,6 +227,30 @@ def start_adb():
 		Globals.TERM.feed_child('clear\n')
 		return
 
+def checked_term_toggle(widget):
+	if Globals.checkTermToggle.get_active() == True:
+		Parser().write("term_toggle", True)
+	else:
+		Parser().write("term_toggle", False)
+
+	update_widgets()
+
+def update_widgets():
+	(x, y) = Globals.MAIN_WIN.get_position()
+	x = int(x)
+	y = int(y)
+
+	if Parser().read("term_toggle") == True:
+		table.show()
+		Parser().write("term_toggle", True)
+
+	if Parser().read("term_toggle") == False:
+		table.hide()
+		Parser().write("term_toggle", False)
+
+	Utils().update()
+	Globals.MAIN_WIN.move(x, y)
+
 def hit_event_btn(obj, event, arg):
 	T = None
 	if arg == "Gmail":
@@ -255,6 +285,11 @@ def hit_event_btn(obj, event, arg):
 class advanced():
  
 	def main_quit(self, widget, event=None):
+		(x, y) = Globals.MAIN_WIN.get_position()
+		x = int(x)
+		y = int(y)
+		Parser().write("win_x", x)
+		Parser().write("win_y", y)
 		gtk.main_quit()
 
 	def on_key_press(self, widget, data=None):
@@ -273,34 +308,59 @@ class advanced():
 		elif i == "r" and data.state & gtk.gdk.CONTROL_MASK:
 			Utils().choose_repo_path()
 		elif i == "x" and data.state & gtk.gdk.CONTROL_MASK or i == "Escape":
+			(x, y) = Globals.MAIN_WIN.get_position()
+			here = int(x)
+			there = int(y)
+			Parser().write("win_x", here)
+			Parser().write("win_y", there)
 			gtk.main_quit()
 		else:
 			pass
  
 	# Main program
 	def main(self):
+		def callback_termtoggle(widget, data=None):
+			update_widgets(str(data))
+
 		myMAIN_ICON = gtk.gdk.pixbuf_new_from_file(Globals.myICON)
 		Globals.MAIN_WIN.set_title(Globals.myMainTitle)
-		Globals.MAIN_WIN.set_position(gtk.WIN_POS_CENTER_ALWAYS)
 		Globals.MAIN_WIN.set_icon(myMAIN_ICON)
+		x = Parser().read("win_x")
+		y = Parser().read("win_y")
+		x = int(x)
+		y = int(y)
+		Globals.MAIN_WIN.move(x, y)
 		Globals.MAIN_WIN.connect("delete_event", self.main_quit)
 		Globals.MAIN_WIN.connect("key_press_event", self.on_key_press)
 		Globals.MAIN_WIN.set_events(gtk.gdk.KEY_PRESS_MASK)
 		Globals.MAIN_WIN.set_events(gtk.gdk.CONTROL_MASK)
-		Globals.MAIN_WIN.set_size_request(1024, 638)
 		Globals.MAIN_WIN.set_resizable(False)
 
-		MAIN_VBOX = gtk.VBox(False, 0)
+		toptable.show()
+		hbox = gtk.HBox(False, 0)
+		hbox.show()
+		toggleTermFrame = gtk.Frame()
+		toggleTermFrame.set_label_widget(Globals.toggleTermLab)
+		if Parser().read("term_toggle") == True:
+			Globals.checkTermToggle.set_active(True)
+		else:
+			Globals.checkTermToggle.set_active(False)
+		Globals.checkTermToggle.connect("clicked", checked_term_toggle)
+		Globals.checkTermToggle.show()
+		hbox.add(Globals.checkTermToggle)
+
+		toggleTermFrame.add(hbox)
+
+		toptable.attach(toggleTermFrame, 0, 1, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		toptable.attach(Globals.aoscTitleLab, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
 		TERM_FRAME = gtk.Frame()
-		TERM_FRAME.show()
-		Globals.TERM.show()
+		TERM_FRAME.set_size_request(1058, 390)
 		TERM_FRAME.add(Globals.TERM)
 
-		table = gtk.Table(1, 3, False)
-		table.show()
+		table.attach(TERM_FRAME, 0, 1, 0, 1, xpadding=10)
+		table.hide()
 
-		Globals.MAIN_INFO.show()
 		Globals.KEY_BIND_INFO.show()
 		Globals.aoscTitleLab.show()
 
@@ -374,11 +434,11 @@ class advanced():
 		optTable.attach(toolsCombo, 6, 7, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.toolsLab, 6, 7, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.set_border_width(5)
-		optFrame = gtk.Frame()
 		optFrame.add(optTable)
 		Globals.buildFrameLab.show()
 		optFrame.set_label_widget(Globals.buildFrameLab)
-		optFrame.set_border_width(5)
+		optFrame.set_size_request(1058, 100)
+		optFrame.set_border_width(10)
 		optFrame.show()
 
 		# Build Frame
@@ -418,6 +478,7 @@ class advanced():
 		buildTable.set_border_width(5)
 		buildFrame = gtk.Frame()
 		buildFrame.add(buildTable)
+		buildFrame.set_shadow_type(gtk.SHADOW_NONE)
 		Globals.runFrameLab.show()
 		buildFrame.set_label_widget(Globals.runFrameLab)
 		buildFrame.show()
@@ -467,30 +528,29 @@ class advanced():
 		linksFrame = gtk.Frame()
 		linksFrame.add(LinksTable)
 		linksFrame.set_size_request(300, 75)
-		linksFrame.set_label("Contact")
+		Globals.contactFrameLab.show()
+		linksFrame.set_label_widget(Globals.contactFrameLab)
+		linksFrame.set_shadow_type(gtk.SHADOW_NONE)
 		linksFrame.show()
 
 		# Main button table
-		tableB = gtk.Table(1, 2, False)
 		tableB.show()
-
-		MAIN_VBOX.pack_start(Globals.aoscTitleLab, False, False, 0)
-		MAIN_VBOX.pack_start(Globals.MAIN_INFO, False, False, 0)
-		MAIN_VBOX.pack_start(table, True, True, 0)
-		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 0)
-		MAIN_VBOX.pack_start(optFrame, True, True, 0)
-		MAIN_VBOX.pack_start(tableB, True, True, 0)
-
-		table.attach(TERM_FRAME, 0, 1, 0, 1, xpadding=10)
 
 		tableB.attach(buildFrame, 0, 1, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		tableB.attach(tableEntry, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		tableB.attach(linksFrame, 2, 3, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
+		MAIN_VBOX.pack_start(toptable, False, False, 0)
+		MAIN_VBOX.pack_start(table, True, True, 0)
+		MAIN_VBOX.pack_start(optFrame, True, True, 0)
+		MAIN_VBOX.pack_start(tableB, True, True, 0)
+		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 5)
+
 		Utils().update()
 
 		Globals.MAIN_WIN.add(MAIN_VBOX)
 		Globals.MAIN_WIN.show_all()
+		update_widgets()
 		gtk.main()
 
 def main():
