@@ -79,7 +79,7 @@ def main_about(obj):
 ######################################################################
 
 toolsCombo = gtk.combo_box_new_text()
-for i in ["Options", "View config", "Repo path", "Remove config", "Run bash", "Add device", "Stop/reset", "Open rom folder", "Install packages", "Install repo"]:
+for i in ["Options", "View config", "Repo path", "Remove config", "Add device", "Stop/reset", "Open rom folder", "Install packages", "Install repo"]:
 	toolsCombo.append_text(i)
 
 romCombo = gtk.combo_box_new_text()
@@ -116,6 +116,7 @@ def run_vt_command(event):
 	Globals.TERM.feed_child('time make -j%s %s\n' % (Globals.PROCESSORS, i))
 
 def run_local_shell():
+	Utils().ResetTerm()
 	Globals.TERM.set_background_saturation(0.3)
 	Globals.TERM.fork_command('bash')
 
@@ -128,16 +129,14 @@ def tools_combo_change(event):
 	elif value == 3:
 		remove_config()
 	elif value == 4:
-		run_local_shell()
-	elif value == 5:
 		Utils().run_custom_device()
-	elif value == 6:
+	elif value == 5:
 		Utils().ResetTerm()
-	elif value == 7:
+	elif value == 6:
 		openBuildFolder()
-	elif value == 8:
+	elif value == 7:
 		InstallPackages().runInstall()
-	elif value == 9:
+	elif value == 8:
 		InstallPackages().repo()
 	else:
 		pass
@@ -224,6 +223,17 @@ def start_adb():
 		Utils().ResetTerm()
 		return
 
+def checked_bash_toggle(widget):
+	if Globals.checkBashToggle.get_active() == True:
+		if Globals.checkTermToggle.get_active() == False:
+			Globals.checkTermToggle.set_active(True)
+			Parser().write("term_toggle", True)
+			update_widgets()
+
+		run_local_shell()
+	else:
+		Utils().ResetTerm()
+
 def checked_adb_toggle(widget):
 	if Globals.checkAdbToggle.get_active() == True:
 		if Globals.checkTermToggle.get_active() == False:	
@@ -235,8 +245,6 @@ def checked_adb_toggle(widget):
 			start_adb()
 	else:
 		Utils().ResetTerm()
-
-	#Utils().update()
 
 def checked_term_toggle(widget):
 	if Globals.checkTermToggle.get_active() == True:
@@ -368,6 +376,14 @@ class advanced():
 		Globals.checkAdbToggle.show()
 		toggleAdbFrame.add(Globals.checkAdbToggle)
 		hbox.add(toggleAdbFrame)
+
+		toggleBashFrame = gtk.Frame()
+		toggleBashFrame.set_label_widget(Globals.toggleBashLab)
+		Globals.checkBashToggle.set_active(False)
+		Globals.checkBashToggle.connect("clicked", checked_bash_toggle)
+		Globals.checkBashToggle.show()
+		toggleBashFrame.add(Globals.checkBashToggle)
+		hbox.add(toggleBashFrame)
 
 		toptable.attach(hbox, 0, 1, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		toptable.attach(Globals.aoscTitleLab, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)

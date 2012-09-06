@@ -391,6 +391,7 @@ class Utils():
 		Globals.runFrameLab.set_markup("<small>Run options</small>")
 		Globals.toggleTermLab.set_markup("<small>Terminal</small>")
 		Globals.toggleAdbLab.set_markup("<small>Adb log</small>")
+		Globals.toggleBashLab.set_markup("<small>Bash shell</small>")
 		Globals.contactFrameLab.set_markup("<small>Contact</small>")
 		Globals.buildFrameLab.set_markup("<small>Build options</small>")
 		Globals.syncLab.set_markup("<small>Sync</small>")
