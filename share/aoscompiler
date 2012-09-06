@@ -79,7 +79,7 @@ def main_about(obj):
 ######################################################################
 
 toolsCombo = gtk.combo_box_new_text()
-for i in ["Options", "Start adb", "View config", "Repo path", "Remove config", "Run bash", "Add device", "Stop/reset", "Open rom folder", "Install packages", "Install repo"]:
+for i in ["Options", "View config", "Repo path", "Remove config", "Run bash", "Add device", "Stop/reset", "Open rom folder", "Install packages", "Install repo"]:
 	toolsCombo.append_text(i)
 
 romCombo = gtk.combo_box_new_text()
@@ -122,24 +122,22 @@ def run_local_shell():
 def tools_combo_change(event):
 	value = int(toolsCombo.get_active())
 	if value == 1:
-		start_adb()
-	elif value == 2:
 		Utils().ViewConfig()
-	elif value == 3:
+	elif value == 2:
 		Utils().choose_repo_path()
-	elif value == 4:
+	elif value == 3:
 		remove_config()
-	elif value == 5:
+	elif value == 4:
 		run_local_shell()
-	elif value == 6:
+	elif value == 5:
 		Utils().run_custom_device()
-	elif value == 7:
+	elif value == 6:
 		Utils().ResetTerm()
-	elif value == 8:
+	elif value == 7:
 		openBuildFolder()
-	elif value == 9:
+	elif value == 8:
 		InstallPackages().runInstall()
-	elif value == 10:
+	elif value == 9:
 		InstallPackages().repo()
 	else:
 		pass
@@ -220,12 +218,25 @@ def start_adb():
 			else:
 				Globals.TERM.feed_child("adb logcat |grep \"%s/\"\n" % x)
 		else:
-			return
+			Utils().ResetTerm()
 	else:
 		Utils().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb running to start, start it.\n\nPlease try again.")
-		Globals.TERM.set_background_saturation(1.0)
-		Globals.TERM.feed_child('clear\n')
+		Utils().ResetTerm()
 		return
+
+def checked_adb_toggle(widget):
+	if Globals.checkAdbToggle.get_active() == True:
+		if Globals.checkTermToggle.get_active() == False:	
+			Globals.checkTermToggle.set_active(True)
+			Parser().write("term_toggle", True)
+			update_widgets()
+			start_adb()
+		else:
+			start_adb()
+	else:
+		Utils().ResetTerm()
+
+	#Utils().update()
 
 def checked_term_toggle(widget):
 	if Globals.checkTermToggle.get_active() == True:
@@ -337,7 +348,7 @@ class advanced():
 		Globals.MAIN_WIN.set_resizable(False)
 
 		toptable.show()
-		hbox = gtk.HBox(False, 0)
+		hbox = gtk.HBox(False, 10)
 		hbox.show()
 		toggleTermFrame = gtk.Frame()
 		toggleTermFrame.set_label_widget(Globals.toggleTermLab)
@@ -347,11 +358,18 @@ class advanced():
 			Globals.checkTermToggle.set_active(False)
 		Globals.checkTermToggle.connect("clicked", checked_term_toggle)
 		Globals.checkTermToggle.show()
-		hbox.add(Globals.checkTermToggle)
+		toggleTermFrame.add(Globals.checkTermToggle)
+		hbox.add(toggleTermFrame)
 
-		toggleTermFrame.add(hbox)
+		toggleAdbFrame = gtk.Frame()
+		toggleAdbFrame.set_label_widget(Globals.toggleAdbLab)
+		Globals.checkAdbToggle.set_active(False)
+		Globals.checkAdbToggle.connect("clicked", checked_adb_toggle)
+		Globals.checkAdbToggle.show()
+		toggleAdbFrame.add(Globals.checkAdbToggle)
+		hbox.add(toggleAdbFrame)
 
-		toptable.attach(toggleTermFrame, 0, 1, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		toptable.attach(hbox, 0, 1, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		toptable.attach(Globals.aoscTitleLab, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
 		TERM_FRAME = gtk.Frame()

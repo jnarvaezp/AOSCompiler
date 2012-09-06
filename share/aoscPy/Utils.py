@@ -352,6 +352,7 @@ class Utils():
 		return BR
 
 	def ResetTerm(self):
+		Globals.checkAdbToggle.set_active(False)
 		Globals.TERM.set_background_saturation(1.0)
 		Globals.TERM.fork_command('clear')
 
@@ -388,10 +389,8 @@ class Utils():
 		Globals.makeLab.set_markup("<small>Make jobs</small>")
 		Globals.compileLab.set_markup("<small>Compile</small>")
 		Globals.runFrameLab.set_markup("<small>Run options</small>")
-		if Parser().read("term_toggle") == True:
-			Globals.toggleTermLab.set_markup("<small>Term <b>On</b></small>")
-		else:
-			Globals.toggleTermLab.set_markup("<small>Term <b>Off</b></small>")
+		Globals.toggleTermLab.set_markup("<small>Terminal</small>")
+		Globals.toggleAdbLab.set_markup("<small>Adb log</small>")
 		Globals.contactFrameLab.set_markup("<small>Contact</small>")
 		Globals.buildFrameLab.set_markup("<small>Build options</small>")
 		Globals.syncLab.set_markup("<small>Sync</small>")
