@@ -181,6 +181,10 @@ class Utils():
 			from projects.AOSP import AOSP as AOSP
 			ImageList = AOSP.ScreenList
 			Desc = AOSP.AboutDesc
+		elif a == "CM":
+			from projects.CyanogenMod import CyanogenMod as CM
+			ImageList = CM.ScreenList
+			Desc = CM.AboutDesc
 		else:
 			return
 		dialog = gtk.Dialog("About: %s" % r, None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))

@@ -23,13 +23,13 @@ class CyanogenMod():
 
 	BranchList = ["gingerbread", "ics", "jellybean"]
 
-	AboutDesc = "Type some things here about the rom and about it's design!"
+	AboutDesc = "This is cyanogenmod, this is subject to changes."
 
 	# CyanogenMod Images
-	Images = ["screeny1.jpg", "screeny2.jpg", "screeny3.jpg"]
+	Images = ["screeny1.jpg", "screeny2.jpg", "screeny3.jpg", "screeny4.jpg", "screeny5.jpg", "screeny6.jpg"]
 	ScreenList = []
 	for i in Images:
-		ScreenList.append("%s/aosp/%s" % (Globals.myScreenURL, i))
+		ScreenList.append("%s/cm/%s" % (Globals.myScreenURL, i))
 
 	def getBranch(self, arg):
 		CM = CyanogenMod()
