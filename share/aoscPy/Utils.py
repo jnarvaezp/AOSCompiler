@@ -172,7 +172,7 @@ class Utils():
 
 		dialog.run()
 		dialog.destroy()
-		Utils().update()
+		Utils().update(None)
 
 	def aboutRom(self, obj):
 		r = Parser().read("rom_dist")
@@ -355,6 +355,7 @@ class Utils():
 		Globals.checkAdbToggle.set_active(False)
 		Globals.TERM.set_background_saturation(1.0)
 		Globals.TERM.fork_command('clear')
+		Utils().update(None)
 
 	def choose_repo_path(self):
 		direct = gtk.FileChooserDialog("Repo path...", action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
@@ -364,16 +365,20 @@ class Utils():
 		if r == gtk.RESPONSE_ACCEPT:
 			try:
 				Parser().write("repo_path", repo_dir)
-				Utils().update()
+				Utils().update(None)
 			except NameError:
 				pass
 
-	def update(self):
+	def update(self, status):
 		b = Parser().read("branch")
 		d = Parser().read("device")
 		p = Parser().read("repo_path")
 		r = Parser().read("rom_dist")
 		a = Parser().read("rom_abrv")
+		if status == None:
+			stat = "Waiting for command..."
+		else:
+			stat = status
 		(x, y) = Globals.MAIN_WIN.get_position()
 		here = int(x)
 		there = int(y)
@@ -389,6 +394,8 @@ class Utils():
 		Globals.makeLab.set_markup("<small>Make jobs</small>")
 		Globals.compileLab.set_markup("<small>Compile</small>")
 		Globals.runFrameLab.set_markup("<small>Run options</small>")
+		Globals.statusFrameLab.set_markup("<small>Status</small>")
+		Globals.statusLab.set_markup("<span font=\"25\" variant=\"normal\"><sub>%s</sub></span>" % stat)
 		Globals.toggleTermLab.set_markup("<small>Terminal</small>")
 		Globals.toggleAdbLab.set_markup("<small>Adb log</small>")
 		Globals.toggleBashLab.set_markup("<small>Bash shell</small>")
@@ -511,7 +518,7 @@ class Utils():
 
 		if r == gtk.RESPONSE_ACCEPT:
 			if ADB_TYPE:
-				return ADB_TYPE[0]
+				return (ADB_TYPE[0], ADB_TYPE)
 			else:
 				return None
 		else:
