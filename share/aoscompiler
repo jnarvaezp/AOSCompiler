@@ -79,7 +79,7 @@ def main_about(obj):
 ######################################################################
 
 toolsCombo = gtk.combo_box_new_text()
-for i in ["Options", "View config", "Repo path", "Remove config", "Add device", "Stop/reset", "Open rom folder", "Install packages", "Install repo"]:
+for i in ["Options", "View config", "Repo path", "Remove config", "Add device", "Open rom folder", "Install packages", "Install repo", "Change background"]:
 	toolsCombo.append_text(i)
 
 romCombo = gtk.combo_box_new_text()
@@ -131,13 +131,13 @@ def tools_combo_change(event):
 	elif value == 4:
 		Utils().run_custom_device()
 	elif value == 5:
-		Utils().ResetTerm()
-	elif value == 6:
 		openBuildFolder()
-	elif value == 7:
+	elif value == 6:
 		InstallPackages().runInstall()
-	elif value == 8:
+	elif value == 7:
 		InstallPackages().repo()
+	elif value == 8:
+		Utils().change_background()
 	else:
 		pass
 
@@ -222,6 +222,13 @@ def start_adb():
 		Utils().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb running to start, start it.\n\nPlease try again.")
 		Utils().ResetTerm()
 		return
+
+def reset_button(widget):
+	if Globals.checkBashToggle.get_active() == True:
+		Globals.checkBashToggle.set_active(False)
+	if Globals.checkAdbToggle.get_active() == True:
+		Globals.checkAdbToggle.set_active(False)
+	Utils().ResetTerm()
 
 def checked_bash_toggle(widget):
 	if Globals.checkBashToggle.get_active() == True:
@@ -358,6 +365,18 @@ class advanced():
 		toptable.show()
 		hbox = gtk.HBox(False, 10)
 		hbox.show()
+
+		resetFrame = gtk.Frame()
+		resetFrame.set_label_widget(Globals.resetLab)
+		resetImg = gtk.Image()
+		resetImg.set_from_file(Globals.DeviceImg)
+		Globals.resetBtn.set_image(resetImg)
+		Globals.resetBtn.connect("clicked", reset_button)
+		Globals.resetBtn.set_size_request(40, 25)
+		Globals.resetBtn.show()
+		resetFrame.add(Globals.resetBtn)
+		hbox.add(resetFrame)
+
 		toggleTermFrame = gtk.Frame()
 		toggleTermFrame.set_label_widget(Globals.toggleTermLab)
 		if Parser().read("term_toggle") == True:
@@ -581,6 +600,7 @@ class advanced():
 		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 5)
 
 		Utils().update()
+		Utils().update_background()
 
 		Globals.MAIN_WIN.add(MAIN_VBOX)
 		Globals.MAIN_WIN.show_all()

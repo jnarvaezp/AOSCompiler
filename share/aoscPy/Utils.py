@@ -368,6 +368,29 @@ class Utils():
 			except NameError:
 				pass
 
+	def cust_background_dialog(self):
+		direct = gtk.FileChooserDialog("Choose background...", action=gtk.FILE_CHOOSER_ACTION_OPEN, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		r = direct.run()
+		IMG = direct.get_filename()
+		direct.destroy()
+		if r == gtk.RESPONSE_ACCEPT:
+			import imghdr as im
+			test = im.what(IMG)
+			if test:
+				Parser().write("background", IMG)
+				Utils().update_background()
+			else:
+				Utils().CDial(gtk.MESSAGE_ERROR, "File not an image!", "Please use images for backgrounds!\n\nFile:\n%s" % IMG)
+				return
+
+	def update_background(self):
+		if Parser().read("background") is None:
+			i = Globals.myTermWall
+		else:
+			i = Parser().read("background")
+
+		Globals.TERM.set_background_image_file(i)
+
 	def update(self):
 		b = Parser().read("branch")
 		d = Parser().read("device")
@@ -392,6 +415,7 @@ class Utils():
 		Globals.toggleTermLab.set_markup("<small>Terminal</small>")
 		Globals.toggleAdbLab.set_markup("<small>Adb log</small>")
 		Globals.toggleBashLab.set_markup("<small>Bash shell</small>")
+		Globals.resetLab.set_markup("<small>Stop/reset</small>")
 		Globals.contactFrameLab.set_markup("<small>Contact</small>")
 		Globals.buildFrameLab.set_markup("<small>Build options</small>")
 		Globals.syncLab.set_markup("<small>Sync</small>")
@@ -512,6 +536,50 @@ class Utils():
 		if r == gtk.RESPONSE_ACCEPT:
 			if ADB_TYPE:
 				return ADB_TYPE[0]
+			else:
+				return None
+		else:
+			return None
+
+	def change_background(self):
+		def chbutton(widget, data=None):
+			global WHICH
+			WHICH = data
+
+		BLIST = ["Custom", "Default"]
+		global WHICH
+		WHICH = None
+
+		dialog = gtk.Dialog("Change background", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog.set_size_request(225, 233)
+		dialog.set_resizable(False)
+
+		hbox = gtk.HBox(False, 10)
+		hbox.show()
+
+		TYPE = gtk.RadioButton(None, None)
+
+		for radio in BLIST:
+			frame = gtk.Frame()
+			frame.set_label(radio)
+			frame.show()
+			button = gtk.RadioButton(group=TYPE, label="%s" % (radio))
+			button.connect("toggled", chbutton, radio)
+			frame.add(button)
+			hbox.add(frame)
+			button.show()
+
+		dialog.vbox.pack_start(hbox, True, True, 0)
+
+		r = dialog.run()
+		dialog.destroy()
+
+		if r == gtk.RESPONSE_ACCEPT:
+			if WHICH is "Default":
+				Parser().write("background", None)
+				Utils().update_background()
+			elif WHICH is "Custom":
+				Utils().cust_background_dialog()
 			else:
 				return None
 		else:

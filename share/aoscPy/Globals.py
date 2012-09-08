@@ -64,6 +64,7 @@ Any bugs? Please report them <a href=\"mailto:https://github.com/lithid/Cmcompil
 	runBtn = gtk.Button()
 	branchBtn = gtk.Button()
 	aboutRomBtn = gtk.Button()
+	resetBtn = gtk.Button()
 	KEY_BIND_INFO = gtk.Label()
 	runLab = gtk.Label()
 	romLab = gtk.Label()
@@ -83,6 +84,7 @@ Any bugs? Please report them <a href=\"mailto:https://github.com/lithid/Cmcompil
 	toggleTermLab = gtk.Label()
 	toggleAdbLab = gtk.Label()
 	toggleBashLab = gtk.Label()
+	resetLab = gtk.Label()
 	contactFrameLab = gtk.Label()
 	aoscTitleLab = gtk.Label()
 	checkCompile = gtk.CheckButton()
@@ -93,6 +95,5 @@ Any bugs? Please report them <a href=\"mailto:https://github.com/lithid/Cmcompil
 	checkBashToggle = gtk.CheckButton()
 	TERM = vte.Terminal()
 	TERM.set_font_from_string("Ubuntu Mono 9")
-	TERM.set_background_image_file(myTermWall)
 	TERM.set_background_saturation(1.0)
 

@@ -44,6 +44,7 @@ class Parser():
 			getTermToggle = config.get(title, 'term_toggle')
 			getWinX = config.get(title, 'win_x')
 			getWinY = config.get(title, 'win_y')
+			getBackground = config.get(title, 'background')
 
 		except:
 			getRomDist = None
@@ -60,6 +61,7 @@ class Parser():
 			getWinY = None
 			getWinW = None
 			getWinH = None
+			getBackground = None
 
 		config = ConfigParser.RawConfigParser()
 		config.add_section(title)
@@ -147,6 +149,13 @@ class Parser():
 			config.set(title, 'verbose', getVerbose)
 		else:
 			config.set(title, 'verbose', False)
+
+		if arg == "background":
+			config.set(title, 'background', value)
+		elif getBackground:
+			config.set(title, 'background', getBackground)
+		else:
+			config.set(title, 'background', None)
 
 		with open(Globals.myCONF, 'wb') as configfile:
     			config.write(configfile)
