@@ -369,6 +369,7 @@ class Utils():
 			except NameError:
 				pass
 
+<<<<<<< HEAD
 	def cust_background_dialog(self):
 		direct = gtk.FileChooserDialog("Choose background...", action=gtk.FILE_CHOOSER_ACTION_OPEN, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 		r = direct.run()
@@ -392,7 +393,10 @@ class Utils():
 
 		Globals.TERM.set_background_image_file(i)
 
+	def update(self):
+=======
 	def update(self, status):
+>>>>>>> 87cbcdbab77f713d78ce779306d64c1cf9d6d7f7
 		b = Parser().read("branch")
 		d = Parser().read("device")
 		p = Parser().read("repo_path")

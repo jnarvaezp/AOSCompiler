@@ -13,7 +13,10 @@ class Compile():
 		r = Parser().read("rom_abrv")
 		if r == "CM":
 			from projects.CyanogenMod import CyanogenMod as CM
+			Utils().update("Compiling CyanogenMod")
 			CM().Compile()
 		else:
 			n = Parser().read("rom_dist")
 			Utils().CDial(gtk.MESSAGE_INFO, "Rom %s not supported" % n, "Sorry but at this time,\n\n%s\n\nis not supported, please contact us for more info" % n)
+			Utils().update(None)
+			return

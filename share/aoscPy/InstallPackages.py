@@ -40,6 +40,7 @@ def getLinux(arg):
 
 class InstallPackages():
 	def repo(self):
+		Utils().update("Installing repo...")
 		Globals.TERM.set_background_saturation(0.3)
 		Globals.TERM.fork_command("bash")
 		Globals.TERM.feed_child("clear\n")

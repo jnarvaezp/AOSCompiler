@@ -12,12 +12,13 @@ class Sync():
 		repo = Utils().which("repo")
 		if repo == None:
 			Utils().CDial(gtk.MESSAGE_INFO, "Repo is not installed", "You need to install repo to continue.")
-			main_cmc_cmd()
+			Utils().update(None)
 			return
 		r = Parser().read("repo_path")
 		url = Utils().getBranchUrl("init")
 		b = Parser().read("branch")
 		j = Parser().read("sync_jobs")
+		Utils().update("Repo syncing with %s jobs for %s" % (j, b))
 		if not os.path.exists(r):
 			os.mkdir(r)
 		Globals.TERM.feed_child("cd %s\n" % r)

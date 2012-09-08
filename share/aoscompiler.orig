@@ -608,8 +608,12 @@ class advanced():
 		MAIN_VBOX.pack_start(tableB, True, True, 0)
 		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 5)
 
+<<<<<<< HEAD
+		Utils().update()
 		Utils().update_background()
 
+=======
+>>>>>>> 87cbcdbab77f713d78ce779306d64c1cf9d6d7f7
 		Globals.MAIN_WIN.add(MAIN_VBOX)
 		Globals.MAIN_WIN.show_all()
 		update_widgets()
