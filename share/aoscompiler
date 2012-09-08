@@ -226,6 +226,16 @@ def start_adb():
 		Utils().ResetTerm()
 		return
 
+def toggle_term_btn():
+	if Globals.checkTermToggle.get_active() == True:
+		Parser().write("term_toggle", False)
+		Globals.checkTermToggle.set_active(False)
+	else:
+		Parser().write("term_toggle", True)
+		Globals.checkTermToggle.set_active(True)
+
+	update_widgets()
+
 def reset_button(widget):
 	if Globals.checkBashToggle.get_active() == True:
 		Globals.checkBashToggle.set_active(False)
@@ -333,6 +343,8 @@ class advanced():
 			Utils().ResetTerm()
 		elif i == "s" and data.state & gtk.gdk.CONTROL_MASK:
 			Sync().run()
+		elif i == "t" and data.state & gtk.gdk.CONTROL_MASK:
+			toggle_term_btn()
 		elif i == "b" and data.state & gtk.gdk.CONTROL_MASK:
 			Compile().run()
 		elif i == "r" and data.state & gtk.gdk.CONTROL_MASK:
@@ -606,7 +618,7 @@ class advanced():
 		MAIN_VBOX.pack_start(table, True, True, 0)
 		MAIN_VBOX.pack_start(optFrame, True, True, 0)
 		MAIN_VBOX.pack_start(tableB, True, True, 0)
-		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 5)
+		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 10)
 
 		Utils().update_background()
 
