@@ -13,6 +13,7 @@ sys.path.append("/usr/share/aoscompiler")
 import time
 import webbrowser
 import subprocess
+import pango
 
 from aoscPy.About import About
 from aoscPy.Globals import Globals
@@ -80,11 +81,11 @@ def main_about(obj):
 ######################################################################
 
 toolsCombo = gtk.combo_box_new_text()
-for i in ["Options", "View config", "Repo path", "Remove config", "Add device", "Open rom folder", "Install packages", "Install repo", "Change background"]:
+for i in ["View config", "Repo path", "Remove config", "Add device", "Open rom folder", "Install packages", "Install repo", "Change background"]:
 	toolsCombo.append_text(i)
 
 romCombo = gtk.combo_box_new_text()
-for i in ["Choose", "AOSP", "CM", "AOKP", "CNA"]:
+for i in ["AOSP", "CM", "AOKP", "CNA"]:
 	romCombo.append_text(i)
 
 makeCombo = gtk.combo_box_new_text()
@@ -122,59 +123,57 @@ def run_local_shell():
 	Globals.TERM.set_background_saturation(0.3)
 	Globals.TERM.fork_command('bash')
 
-def tools_combo_change(event):
-	value = int(toolsCombo.get_active())
-	if value == 1:
+def tools_combo_change(w):
+	value = int(w.get_active())
+	if value == 0:
 		Utils().ViewConfig()
-	elif value == 2:
+	elif value == 1:
 		Utils().choose_repo_path()
-	elif value == 3:
+	elif value == 2:
 		remove_config()
-	elif value == 4:
+	elif value == 3:
 		Utils().run_custom_device()
-	elif value == 5:
+	elif value == 4:
 		openBuildFolder()
-	elif value == 6:
+	elif value == 5:
 		InstallPackages().runInstall()
-	elif value == 7:
+	elif value == 6:
 		InstallPackages().repo()
-	elif value == 8:
+	elif value == 7:
 		Utils().change_background()
 	else:
 		pass
 
-	toolsCombo.set_active(0)
-
-def compile_combo_change(event):
-	value = str(makeCombo.get_active_text())
+def compile_combo_change(w):
+	value = int(w.get_active_text())
 	Parser().write("make_jobs", value)
+	Utils().update(None)
 
-def sync_combo_change(event):
-	value = str(syncCombo.get_active_text())
+def sync_combo_change(w):
+	value = int(w.get_active_text())
 	Parser().write("sync_jobs", value)
+	Utils().update(None)
 
-def rom_combo_change(event):
-	value = str(romCombo.get_active_text())
-	if value == "Choose":
-		pass
+def rom_combo_change(w):
+	value = str(w.get_active_text())
+	num = int(w.get_active())
+	if num == 0:
+		value2 = "Android Open Source Project"
+	elif num == 1:
+		value2 = "CyanogenMod"
+	elif num == 2:
+		value2 = "Android Open Kang Project"
+	elif num == 3:
+		value2 = "Codename Android"
 	else:
-		if value == "AOSP":
-			value2 = "Android Open Source Project"
-		elif value == "AOKP":
-			value2 = "Android Open Kang Project"
-		elif value == "CM":
-			value2 = "CyanogenMod"
-		elif value == "CNA":
-			value2 = "Codename Android"
-		else:
-			Value2 = "Android Open Source Compiler"
-		Parser().write("rom_dist", value2)
-		Parser().write("rom_abrv", value)
-		Parser().write("branch", "Default")
-		Parser().write("device", "Default")
-		Parser().write("manuf", "Default")
-		Utils().update(None)
-	romCombo.set_active(0)
+		value = "AOSC"
+		value2 = "Android Open Source Compiler"
+	Parser().write("rom_dist", value2)
+	Parser().write("rom_abrv", value)
+	Parser().write("branch", "Default")
+	Parser().write("device", "Default")
+	Parser().write("manuf", "Default")
+	Utils().update(None)
 
 def device_button(event):
 	Utils().Devices()
@@ -440,14 +439,13 @@ class advanced():
 		# Build options
 		toolsCombo.show()
 		toolsCombo.set_wrap_width(2)
-		toolsCombo.set_active(0)
+		toolsCombo.set_size_request(32, 25)
 		toolsCombo.connect("changed", tools_combo_change)
 
 		Globals.toolsLab.show()
 
 		romCombo.show()
-		romCombo.set_wrap_width(2)
-		romCombo.set_active(0)
+		romCombo.set_size_request(32, 25)
 		romCombo.connect("changed", rom_combo_change)
 
 		Globals.romLab.show()
@@ -456,6 +454,7 @@ class advanced():
 		aboutRomImg.set_from_file(Globals.ClobImg)
 		Globals.aboutRomBtn.set_image(aboutRomImg)
 		Globals.aboutRomBtn.connect("clicked", Utils().aboutRom)
+		Globals.aboutRomBtn.set_size_request(40, 25)
 		Globals.aboutRomBtn.show()
 
 		Globals.aboutRomLab.show()
@@ -464,6 +463,7 @@ class advanced():
 		branchImg.set_from_file(Globals.ClobImg)
 		Globals.branchBtn.set_image(branchImg)
 		Globals.branchBtn.connect("clicked", Utils().choose_branch)
+		Globals.branchBtn.set_size_request(40, 25)
 		Globals.branchBtn.show()
 
 		Globals.branchLab.show()
@@ -472,20 +472,21 @@ class advanced():
 		DevImg.set_from_file(Globals.DeviceImg)
 		Globals.DEV_BTN.set_image(DevImg)
 		Globals.DEV_BTN.connect("clicked", device_button)
+		Globals.DEV_BTN.set_size_request(40, 25)
 		Globals.DEV_BTN.show()
 
 		Globals.deviceLab.show()
 
 		syncCombo.show()
-		syncCombo.set_active(int(Parser().read("sync_jobs"))-1)
 		syncCombo.set_wrap_width(4)
+		syncCombo.set_size_request(32, 25)
 		syncCombo.connect("changed", sync_combo_change)
 
 		Globals.syncjobsLab.show()
 
 		makeCombo.show()
-		makeCombo.set_active(int(Parser().read("make_jobs"))-1)
 		makeCombo.set_wrap_width(4)
+		makeCombo.set_size_request(32, 25)
 		makeCombo.connect("changed", compile_combo_change)
 
 		Globals.makeLab.show()
@@ -509,10 +510,12 @@ class advanced():
 		optTable.set_border_width(5)
 		optFrame.add(optTable)
 		Globals.buildFrameLab.show()
+		opthbox = gtk.HBox(False, 5)
+		opthbox.show()
 		optFrame.set_label_widget(Globals.buildFrameLab)
-		optFrame.set_size_request(1058, 100)
-		optFrame.set_border_width(10)
+		optFrame.set_size_request(900, 75)
 		optFrame.show()
+		opthbox.pack_start(optFrame, True, True, 120)
 
 		# Build Frame
 		Globals.checkCompile.set_active(False)
@@ -534,6 +537,7 @@ class advanced():
 		runImg.set_from_file(Globals.ClobImg)
 		Globals.runBtn.set_image(runImg)
 		Globals.runBtn.connect("clicked", run_button)
+		Globals.runBtn.set_size_request(40, 25)
 		Globals.runBtn.show()
 
 		Globals.runLab.show()
@@ -616,7 +620,7 @@ class advanced():
 		MAIN_VBOX.pack_start(toptable, False, False, 0)
 		MAIN_VBOX.pack_start(statusFrame, True, True, 0)
 		MAIN_VBOX.pack_start(table, True, True, 0)
-		MAIN_VBOX.pack_start(optFrame, True, True, 0)
+		MAIN_VBOX.pack_start(opthbox, True, True, 0)
 		MAIN_VBOX.pack_start(tableB, True, True, 0)
 		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 10)
 

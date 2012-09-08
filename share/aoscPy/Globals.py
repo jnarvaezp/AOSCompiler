@@ -20,6 +20,7 @@ class Globals():
 	ClobImg = "%s/clobber.png" % myIMGS
 	myBASH = "/usr/share/aoscompiler/cmcBash"
 	myScreenURL = "https://raw.github.com/lithid/AOSCompiler/master/extras/rom"
+	myTermFont = "Ubuntu Mono 9"
 
 	# Local config junk
 	myHOME = os.environ['HOME']
@@ -96,6 +97,6 @@ Any bugs? Please report them <a href=\"mailto:https://github.com/lithid/Cmcompil
 	checkAdbToggle = gtk.CheckButton()
 	checkBashToggle = gtk.CheckButton()
 	TERM = vte.Terminal()
-	TERM.set_font_from_string("Ubuntu Mono 9")
+	TERM.set_font_from_string(myTermFont)
 	TERM.set_background_saturation(1.0)
 
