@@ -418,7 +418,7 @@ class Utils():
 		Globals.compileLab.set_markup("<small>Compile</small>")
 		Globals.runFrameLab.set_markup("<small>Run options</small>")
 		Globals.statusFrameLab.set_markup("<small>Status: <small><span color=\"red\">Check terminal for status output to see if jobs are complete.</span></small></small>")
-		Globals.statusLab.set_markup("<span font=\"25\" variant=\"normal\">\n%s\n</span>" % stat)
+		Globals.statusLab.set_markup("<span font=\"25\" variant=\"normal\">%s\n</span>" % stat)
 		Globals.toggleTermLab.set_markup("<small>Terminal</small>")
 		Globals.toggleAdbLab.set_markup("<small>Adb log</small>")
 		Globals.toggleBashLab.set_markup("<small>Bash shell</small>")
