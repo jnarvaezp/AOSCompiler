@@ -13,7 +13,6 @@ sys.path.append("/usr/share/aoscompiler")
 import time
 import webbrowser
 import subprocess
-import pango
 
 from aoscPy.About import About
 from aoscPy.Globals import Globals
@@ -515,7 +514,7 @@ class advanced():
 		optFrame.set_label_widget(Globals.buildFrameLab)
 		optFrame.set_size_request(900, 75)
 		optFrame.show()
-		opthbox.pack_start(optFrame, True, True, 120)
+		opthbox.pack_start(optFrame, True, True, 91)
 
 		# Build Frame
 		Globals.checkCompile.set_active(False)
