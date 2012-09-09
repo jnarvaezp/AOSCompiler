@@ -80,7 +80,7 @@ def main_about(obj):
 ######################################################################
 
 toolsCombo = gtk.combo_box_new_text()
-for i in ["View config", "Repo path", "Remove config", "Add device", "Open rom folder", "Install packages", "Install repo", "Change background"]:
+for i in ["View config", "Repo path", "Remove config", "Add device", "Open rom folder", "Install packages", "Install repo", "Change background", "About"]:
 	toolsCombo.append_text(i)
 
 romCombo = gtk.combo_box_new_text()
@@ -140,6 +140,8 @@ def tools_combo_change(w):
 		InstallPackages().repo()
 	elif value == 7:
 		Utils().change_background()
+	elif value == 8:
+		About().main()
 	else:
 		pass
 
