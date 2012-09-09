@@ -5,15 +5,16 @@
 ######################################################################
 import pygtk
 pygtk.require('2.0')
+
 import gtk
 import os
 import platform
 import sys
-sys.path.append("/usr/share/aoscompiler")
 import time
 import webbrowser
 import subprocess
 
+sys.path.append("/usr/share/aoscompiler")
 from aoscPy.About import About
 from aoscPy.Globals import Globals
 from aoscPy.Parser import Parser

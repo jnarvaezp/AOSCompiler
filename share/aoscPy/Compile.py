@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import gtk
-import pygtk
 import os
 
 from Globals import Globals
