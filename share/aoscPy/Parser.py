@@ -127,7 +127,7 @@ class Parser():
 		elif getTermToggle:
 			config.set(title, 'term_toggle', getTermToggle)
 		else:
-			config.set(title, 'term_toggle', default)
+			config.set(title, 'term_toggle', True)
 
 		if arg == "win_x":
 			config.set(title, 'win_x', value)

@@ -23,9 +23,17 @@ from aoscPy.Compile import Compile
 from aoscPy.Sync import Sync
 from aoscPy.InstallPackages import InstallPackages
 
-######################################################################
 # Helper functions
-######################################################################
+CONFIG_DIR = Globals.myCONF_DIR
+TOOLS_COMBO_LIST = Globals.ToolsComboList
+KEY_REPO_PATH = Globals.KeyRepoPath
+KEY_DEVICE = Globals.KeyDevice
+STR_USER_CONFIRM = Globals.StrUserConfirm
+ASK_CONFIRM = Globals.AskConfirm
+ASK_CONFIRM_INFO = Globals.AskConfirmInfo
+
+# Dialog objects
+DIALOG_ERROR = Globals.DialogError
 
 MAIN_VBOX = gtk.VBox(False, 0)
 toptable = gtk.Table(1, 3, False)
@@ -35,13 +43,13 @@ optFrame = gtk.Frame()
 statusFrame = gtk.Frame()
 
 def openBuildFolder():
-	r = Parser().read("repo_path")
-	d = Parser().read("device")
-	t = "%s/out/target/product/%s" % (r, d)
+	r = Parser().read(KEY_REPO_PATH)
+	d = Parser().read(KEY_DEVICE)
+	t = '%s/out/target/product/%s' % (r, d)
 	if os.path.exists(t):
 		subprocess.call(('xdg-open', t))
 	else:
-		Utils().CDial(gtk.MESSAGE_ERROR, "No out folder", "Need to compile before you can do this silly!")
+		Utils().CDial(DIALOG_ERROR, 'No out folder', 'Need to compile before you can do this silly!')
 
 def custom_listdir(path):
 	dirs = sorted([d for d in os.listdir(path) if os.path.isdir(path + os.path.sep + d)])
@@ -50,38 +58,26 @@ def custom_listdir(path):
 	return dirs
 
 def chk_config():
-	if not os.path.exists(Globals.myCONF_DIR):
-		os.makedirs(Globals.myCONF_DIR)
+	if not os.path.exists(CONFIG_DIR):
+		os.makedirs(CONFIG_DIR)
 
 def get_askConfirm():
 	def askedClicked():
-		if not os.path.exists(Globals.askConfirm):
-			file(Globals.askConfirm, 'w').close()
+		if not os.path.exists(ASK_CONFIRM):
+			file(ASK_CONFIRM, 'w').close()
 
-	q = Utils().QDial("**** User Confirmation ****", Globals.ask_confirm_info)
+	q = Utils().QDial(STR_USER_CONFIRM, ASK_CONFIRM_INFO)
 	if q == True:
 		askedClicked()
 	else:
 		exit()
-
-def download_clicked(obj):
-	webbrowser.open_new_tab(Globals.myGETCM)
-
-def cm_wiki_clicked(obj):
-	webbrowser.open_new_tab(Globals.myCMWIKI)
-
-def aosp_site_clicked(obj):
-	webbrowser.open_new_tab(Globals.myAOSP_SITE)
-
-def main_about(obj):
-	About().main()
 
 ######################################################################
 # Some GTK globals
 ######################################################################
 
 toolsCombo = gtk.combo_box_new_text()
-for i in ["View config", "Repo path", "Remove config", "Add device", "Open rom folder", "Install packages", "Install repo", "Change background", "About"]:
+for i in TOOLS_COMBO_LIST:
 	toolsCombo.append_text(i)
 
 romCombo = gtk.combo_box_new_text()
@@ -223,7 +219,7 @@ def start_adb():
 		else:
 			Utils().ResetTerm()
 	else:
-		Utils().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb running to start, start it.\n\nPlease try again.")
+		Utils().CDial(DIALOG_ERROR, "Adb isn't running", "Need adb running to start, start it.\n\nPlease try again.")
 		Utils().ResetTerm()
 		return
 
@@ -318,7 +314,7 @@ def hit_event_btn(obj, event, arg):
 	if T is not None:
 		subprocess.call(('xdg-open', url))
 	else:
-		Utils().CDial(gtk.MESSAGE_ERROR, "No Url found!", "There is something wrong with the app. Report this. Returned: %s" % arg)
+		Utils().CDial(DIALOG_ERROR, "No Url found!", "There is something wrong with the app. Report this. Returned: %s" % arg)
 
 ######################################################################
 # Advanced
@@ -661,7 +657,7 @@ if __name__ == "__main__":
 	if not os.path.exists(Globals.myDEF_REPO_PATH):
 		os.mkdir(Globals.myDEF_REPO_PATH)
 	
-	if not os.path.exists(Globals.askConfirm):
+	if not os.path.exists(ASK_CONFIRM):
 		get_askConfirm()
 
 	advanced().main()

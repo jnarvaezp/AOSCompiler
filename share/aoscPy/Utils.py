@@ -498,8 +498,8 @@ class Utils():
 		List = []
 		global ADB_TYPE
 		ADB_TYPE = None
-		ADB_LIST = ["All", "Verbose", "Debug", "Info", "Warning", "Error", "Fatal"]
-		TIP_LIST = ["Show all log output", "Only show verbose, low priority output", "Only show debug output", "Show information output", "Show app and package warnings", "Show application and package errors", "Show critial or fatal errors"]
+		ADB_LIST = Globals.AdbList
+		TIP_LIST = Globals.AdbTooltipList
 		for x in ADB_LIST:
 			List.append(x)
 
