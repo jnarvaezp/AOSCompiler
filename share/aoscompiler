@@ -28,9 +28,15 @@ CONFIG_DIR = Globals.myCONF_DIR
 TOOLS_COMBO_LIST = Globals.ToolsComboList
 KEY_REPO_PATH = Globals.KeyRepoPath
 KEY_DEVICE = Globals.KeyDevice
+KEY_WIN_X = Globals.KeyWinX
+KEY_WIN_Y = Globals.KeyWinY
 STR_USER_CONFIRM = Globals.StrUserConfirm
 ASK_CONFIRM = Globals.AskConfirm
 ASK_CONFIRM_INFO = Globals.AskConfirmInfo
+
+LINK_LIST = Globals.LinkList
+
+TARGET_OUT = Globals.TargetOut
 
 # Dialog objects
 DIALOG_ERROR = Globals.DialogError
@@ -45,7 +51,7 @@ statusFrame = gtk.Frame()
 def openBuildFolder():
 	r = Parser().read(KEY_REPO_PATH)
 	d = Parser().read(KEY_DEVICE)
-	t = '%s/out/target/product/%s' % (r, d)
+	t = TARGET_OUT % (r, d)
 	if os.path.exists(t):
 		subprocess.call(('xdg-open', t))
 	else:
@@ -325,8 +331,8 @@ class advanced():
 		(x, y) = Globals.MAIN_WIN.get_position()
 		x = int(x)
 		y = int(y)
-		Parser().write("win_x", x)
-		Parser().write("win_y", y)
+		Parser().write(KEY_WIN_X, x)
+		Parser().write(KEY_WIN_Y, y)
 		gtk.main_quit()
 
 	def on_key_press(self, widget, data=None):
@@ -350,8 +356,8 @@ class advanced():
 			(x, y) = Globals.MAIN_WIN.get_position()
 			here = int(x)
 			there = int(y)
-			Parser().write("win_x", here)
-			Parser().write("win_y", there)
+			Parser().write(KEY_WIN_X, here)
+			Parser().write(KEY_WIN_Y, there)
 			gtk.main_quit()
 		else:
 			pass
@@ -364,8 +370,8 @@ class advanced():
 		myMAIN_ICON = gtk.gdk.pixbuf_new_from_file(Globals.myICON)
 		Globals.MAIN_WIN.set_title(Globals.myMainTitle)
 		Globals.MAIN_WIN.set_icon(myMAIN_ICON)
-		x = Parser().read("win_x")
-		y = Parser().read("win_y")
+		x = Parser().read(KEY_WIN_X)
+		y = Parser().read(KEY_WIN_Y)
 		x = int(x)
 		y = int(y)
 		Globals.MAIN_WIN.move(x, y)
@@ -584,8 +590,7 @@ class advanced():
 		SpacerLinkL.show()
 
 		count = 0
-		LinkList = ["Gmail", "Twitter", "GooglePlus", "Xda", "Youtube", "Gallery"]
-		for i in LinkList:
+		for i in LINK_LIST:
 			count+=1
 			name = "%s/%s.png" % (Globals.myIMGS, i)
 			image = gtk.Image()

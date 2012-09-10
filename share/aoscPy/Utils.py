@@ -10,6 +10,7 @@ import shutil
 import commands
 
 from Globals import Globals
+from FileChooser import FileChooser
 from Parser import Parser
 
 class Utils():
@@ -358,23 +359,15 @@ class Utils():
 		Utils().update(None)
 
 	def choose_repo_path(self):
-		direct = gtk.FileChooserDialog("Repo path...", action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-		r = direct.run()
-		repo_dir = direct.get_filename()
-		direct.destroy()
-		if r == gtk.RESPONSE_ACCEPT:
-			try:
-				Parser().write("repo_path", repo_dir)
-				Utils().update(None)
-			except NameError:
-				pass
+		print "Here"
+		RESPONSE = FileChooser().getFolder()
+		if RESPONSE is not None:
+			Parser().write("repo_path", RESPONSE)
+			Utils().update(None)
 
 	def cust_background_dialog(self):
-		direct = gtk.FileChooserDialog("Choose background...", action=gtk.FILE_CHOOSER_ACTION_OPEN, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-		r = direct.run()
-		IMG = direct.get_filename()
-		direct.destroy()
-		if r == gtk.RESPONSE_ACCEPT:
+		IMG = FileChooser().getFile()
+		if IMG is not None:
 			import imghdr as im
 			test = im.what(IMG)
 			if test:
@@ -382,15 +375,16 @@ class Utils():
 				Utils().update_background()
 			else:
 				Utils().CDial(gtk.MESSAGE_ERROR, "File not an image!", "Please use images for backgrounds!\n\nFile:\n%s" % IMG)
-				return
+
+		return
 
 	def update_background(self):
 		if Parser().read("background") is None:
-			i = Globals.myTermWall
+			IMG = Globals.myTermWall
 		else:
-			i = Parser().read("background")
+			IMG = Parser().read("background")
 
-		Globals.TERM.set_background_image_file(i)
+		Globals.TERM.set_background_image_file(IMG)
 
 	def update(self, status):
 		b = Parser().read("branch")

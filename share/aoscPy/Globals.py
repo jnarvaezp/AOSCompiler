@@ -10,7 +10,8 @@ class Globals():
 
 	# Resources
 	myMainTitle = ('Android Open Source Compiler')
-	myIMGS = ('/usr/share/aoscompiler/images')
+	myPath = ('/usr/share/aoscompiler')
+	myIMGS = ('%s/images') % (myPath)
 	myICON = ('%s/aosc-icon.png') % (myIMGS)
 	myTermWall = ('%s/termwall.jpg') % (myIMGS)
 	myTHEME = ('%s/theme/') % (myIMGS)
@@ -34,6 +35,7 @@ class Globals():
 
 	# Strings
 	StrUserConfirm = '**** User Confirmation ****'
+	TargetOut = '%s/out/target/product/%s'
 
 	# Needed web urls
 	myFORUM_URL = ('http://forum.xda-developers.com/showthread.php?t=1415661')
@@ -44,8 +46,10 @@ class Globals():
 	DialogError = gtk.MESSAGE_ERROR
 
 	# Keys to reading config
-	KeyRepoPath = "repo_path"
-	KeyDevice = "device"
+	KeyRepoPath = 'repo_path'
+	KeyDevice = 'device'
+	KeyWinX = 'win_x'
+	KeyWinY = 'win_y'
 
 	PROCESSORS = Tools().processor()
 
@@ -75,6 +79,7 @@ class Globals():
 	AdbTooltipList = ['Show all log output', 'Only show verbose, low priority output', 'Only show debug output', 'Show information output', 'Show app and package warnings', 
 			'Show application and package errors', 'Show critial or fatal errors']
 	ToolsComboList = ['View config', 'Repo path', 'Remove config', 'Add device', 'Open rom folder', 'Install packages', 'Install repo', 'Change background', 'About']
+	LinkList = ["Gmail", "Twitter", "GooglePlus", "Xda", "Youtube", "Gallery"]
 
 	MAIN_WIN = gtk.Window(gtk.WINDOW_TOPLEVEL)
 	DEV_BTN = gtk.Button()
