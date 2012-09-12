@@ -92,7 +92,7 @@ class InstallPackages():
 			Dialogs().CDial(gtk.MESSAGE_INFO, "Empty package list", "You already have the packages you need installed!")
 		else:
 			packages = ",".join(L).replace(",", " ")
-			q = Dialogss().QDial("Are you sure??", "We are going to install this list of packages\n\n%s\n\n Are you sure we should proceed?" % packages)
+			q = Dialogs().QDial("Are you sure??", "We are going to install this list of packages\n\n%s\n\n Are you sure we should proceed?" % packages)
 			if q == True:
 				Globals.TERM.set_background_saturation(0.3)
 				Globals.TERM.fork_command("bash")
