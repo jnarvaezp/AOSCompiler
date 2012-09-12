@@ -26,7 +26,7 @@ class AOKP():
 	AboutDesc = "Type some things here about the rom and about it's design!"
 
 	# Aokp Images
-		Images = []
+	Images = []
 	try:
 		filehandle = urllib.urlopen(IMG_FILE)
 	except IOError:
