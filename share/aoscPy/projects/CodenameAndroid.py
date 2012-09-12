@@ -2,6 +2,7 @@
 
 import gtk
 import os
+import urllib
 
 from ..Globals import Globals
 from ..Parser import Parser
