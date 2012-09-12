@@ -60,7 +60,7 @@ class Update():
 		Globals.toggleBashLab.set_markup("<small>Bash shell</small>")
 		Globals.resetLab.set_markup("<small>Stop/reset</small>")
 		Globals.contactFrameLab.set_markup("<small>Contact</small>")
-		Globals.buildFrameLab.set_markup("<small>Build options</small>")
+		Globals.buildFrameLab.set_markup("<small><b>Repo Path: </b>%s</small>" % p)
 		Globals.syncLab.set_markup("<small>Sync</small>")
 		Globals.clobberLab.set_markup("<small>Clobber</small>")
 		Globals.build_appLab.set_markup("<small><small>Build specific <b>app/binary</b> here. :: <b>enter</b> ::</small></small>")
