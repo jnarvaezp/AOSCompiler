@@ -20,7 +20,8 @@ class Globals():
 	DeviceImg = ('%s/device.png') % (myIMGS)
 	ClobImg = ('%s/clobber.png') % (myIMGS)
 	myBASH = ('/usr/share/aoscompiler/cmcBash')
-	myScreenURL = ('https://raw.github.com/lithid/AOSCompiler/master/extras/rom')
+	aoscData = ('https://raw.github.com/lithid/AOSC_Data/master')
+	aoscDataProjects = ('%s/projects') % (aoscData)
 	myTermFont = ('Ubuntu Mono 9')
 
 	# Local config junk

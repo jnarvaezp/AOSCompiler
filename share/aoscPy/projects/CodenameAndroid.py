@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import pygtk
 import gtk
-pygtk.require('2.0')
 import os
 
 from ..Globals import Globals
@@ -19,16 +17,26 @@ class CodenameAndroid():
 	RAW_URL = "https://raw.github.com/CNA"
 	INIT_URL = "https://github.com/CNA/android_manifest.git"
 	JELLYBEAN_URL = "%s/proprietary_vendor_cna/jellybean/vendorsetup.sh" % RAW_URL
+	IMG_FILE = ('%s/cna/screeny-list') % (Globals.aoscDataProjects)
 
 	BranchList = ["jellybean"]
 
 	AboutDesc = "Type some things here about the rom and about it's design!"
 
 	# CodenameAndroid Images
-	Images = ["screeny1.jpg", "screeny2.jpg", "screeny3.jpg"]
+	Images = []
+	try:
+		filehandle = urllib.urlopen(IMG_FILE)
+	except IOError:
+		Dialogs().CDial(gtk.MESSAGE_ERROR, "Can't read file!", "Can't read the file to setup devices!\n\nPlease check you internet connections and try again!")
+
+	for line in filehandle:
+		l = line.strip()
+		Images.append(l)
+
 	ScreenList = []
 	for i in Images:
-		ScreenList.append("%s/aosp/%s" % (Globals.myScreenURL, i))
+		ScreenList.append("%s/aosp/%s" % (Globals.aoscDataProjects, i))
 
 	def getBranch(self, arg):
 		CNA = CodenameAndroid()

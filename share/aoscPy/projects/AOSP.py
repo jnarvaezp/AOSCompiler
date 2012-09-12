@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import pygtk
 import gtk
-pygtk.require('2.0')
 import os
 
 from ..Globals import Globals
@@ -17,19 +15,29 @@ class AOSP():
 
 	INIT_URL = "https://android.googlesource.com/platform/manifest"
 	RAW_URL = "https://raw.github.com/lithid"
-	JELLYBEAN_URL = "%s/AOSCompiler/master/extras/rom/aosp/DeviceList-JB" % RAW_URL
-	ICS_URL = "%s/AOSCompiler/master/extras/rom/aosp/DeviceList-ICS" % RAW_URL
-	GINGERBREAD_URL = "%s/AOSCompiler/master/extras/rom/aosp/DeviceList-GB" % RAW_URL
+	JELLYBEAN_URL = '%s/aosp/DeviceList-JB' % (Globals.aoscDataProjects)
+	ICS_URL = '%s/aosp/DeviceList-ICS' % (Globals.aoscDataProjects)
+	GINGERBREAD_URL = '%s/aosp/DeviceList-GB' % (Globals.aoscDataProjects)
+	IMG_FILE = ('%s/aosp/screeny-list') % (Globals.aoscDataProjects)
 
 	BranchList = ["gingerbread", "ics-mr1", "android-4.1.1_r4", "master"]
 
 	AboutDesc = "<small><b>Type</b> some things here about the rom and about it's design! <b>Type</b> some things here about the rom and about it's design!</small>"
 
 	# Aosp Images
-	Images = ["screeny1.jpg", "screeny2.jpg", "screeny3.jpg"]
+	Images = []
+	try:
+		filehandle = urllib.urlopen(IMG_FILE)
+	except IOError:
+		Dialogs().CDial(gtk.MESSAGE_ERROR, "Can't read file!", "Can't read the file to setup devices!\n\nPlease check you internet connections and try again!")
+
+	for line in filehandle:
+		l = line.strip()
+		Images.append(l)
+
 	ScreenList = []
 	for i in Images:
-		ScreenList.append("%s/aosp/%s" % (Globals.myScreenURL, i))
+		ScreenList.append("%s/aosp/%s" % (Globals.aoscDataProjects, i))
 
 	def getBranch(self, arg):
 		b = Parser().read("branch").strip()

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-import pygtk
 import gtk
-pygtk.require('2.0')
 import os
+import urllib
 
 from ..Globals import Globals
 from ..Parser import Parser
@@ -21,16 +20,26 @@ class CyanogenMod():
 	JELLYBEAN_URL = "%s/android_vendor_cm/jellybean/jenkins-build-targets" % RAW_URL
 	ICS_URL = "%s/android_vendor_cm/ics/jenkins-build-targets" % RAW_URL
 	GINGERBREAD_URL = "%s/android_vendor_cyanogen/gingerbread/vendorsetup.sh" % RAW_URL
+	IMG_FILE = ('%s/cm/screeny-list') % (Globals.aoscDataProjects)
 
 	BranchList = ["gingerbread", "ics", "jellybean"]
 
 	AboutDesc = "This is cyanogenmod, this is subject to changes."
 
 	# CyanogenMod Images
-	Images = ["screeny1.png", "screeny2.png", "screeny3.png", "screeny4.png", "screeny5.png", "screeny6.png"]
+	Images = []
+	try:
+		filehandle = urllib.urlopen(IMG_FILE)
+	except IOError:
+		Dialogs().CDial(gtk.MESSAGE_ERROR, "Can't read file!", "Can't read the file to setup devices!\n\nPlease check you internet connections and try again!")
+
+	for line in filehandle:
+		l = line.strip()
+		Images.append(l)
+
 	ScreenList = []
 	for i in Images:
-		ScreenList.append("%s/cm/%s" % (Globals.myScreenURL, i))
+		ScreenList.append("%s/cm/%s" % (Globals.aoscDataProjects, i))
 
 	def getBranch(self, arg):
 		CM = CyanogenMod()
