@@ -21,323 +21,52 @@ from aoscPy.Parser import Parser
 from aoscPy.Utils import Utils
 from aoscPy.Compile import Compile
 from aoscPy.Sync import Sync
-from aoscPy.InstallPackages import InstallPackages
-
-# Helper functions
-CONFIG_DIR = Globals.myCONF_DIR
-TOOLS_COMBO_LIST = Globals.ToolsComboList
-KEY_REPO_PATH = Globals.KeyRepoPath
-KEY_DEVICE = Globals.KeyDevice
-KEY_WIN_X = Globals.KeyWinX
-KEY_WIN_Y = Globals.KeyWinY
-STR_USER_CONFIRM = Globals.StrUserConfirm
-ASK_CONFIRM = Globals.AskConfirm
-ASK_CONFIRM_INFO = Globals.AskConfirmInfo
-
-LINK_LIST = Globals.LinkList
-
-TARGET_OUT = Globals.TargetOut
-
-# Dialog objects
-DIALOG_ERROR = Globals.DialogError
+from aoscPy.Update import Update
 
 MAIN_VBOX = gtk.VBox(False, 0)
 toptable = gtk.Table(1, 3, False)
-table = gtk.Table(1, 3, False)
 tableB = gtk.Table(1, 2, False)
 optFrame = gtk.Frame()
-statusFrame = gtk.Frame()
 
-def openBuildFolder():
-	r = Parser().read(KEY_REPO_PATH)
-	d = Parser().read(KEY_DEVICE)
-	t = TARGET_OUT % (r, d)
-	if os.path.exists(t):
-		subprocess.call(('xdg-open', t))
-	else:
-		Utils().CDial(DIALOG_ERROR, 'No out folder', 'Need to compile before you can do this silly!')
-
-def custom_listdir(path):
-	dirs = sorted([d for d in os.listdir(path) if os.path.isdir(path + os.path.sep + d)])
-	dirs.extend(sorted([f for f in os.listdir(path) if os.path.isfile(path + os.path.sep + f)]))
-
-	return dirs
-
-def chk_config():
-	if not os.path.exists(CONFIG_DIR):
-		os.makedirs(CONFIG_DIR)
-
-def get_askConfirm():
-	def askedClicked():
-		if not os.path.exists(ASK_CONFIRM):
-			file(ASK_CONFIRM, 'w').close()
-
-	q = Utils().QDial(STR_USER_CONFIRM, ASK_CONFIRM_INFO)
-	if q == True:
-		askedClicked()
-	else:
-		exit()
-
-######################################################################
-# Some GTK globals
-######################################################################
-
-toolsCombo = gtk.combo_box_new_text()
-for i in TOOLS_COMBO_LIST:
-	toolsCombo.append_text(i)
-
-romCombo = gtk.combo_box_new_text()
-for i in ["AOSP", "CM", "AOKP", "CNA"]:
-	romCombo.append_text(i)
-
-makeCombo = gtk.combo_box_new_text()
-for i in range(1,Globals.PROCESSORS+1):
-	makeCombo.append_text(str(i))
-
-syncCombo = gtk.combo_box_new_text()
-for i in range(1,17):
-	syncCombo.append_text(str(i))
-
-entryBox = gtk.Entry()
-
-######################################################################
-# Global Settings
-######################################################################
-def run_vt_command(event):
-	Globals.TERM.set_background_saturation(0.3)
-	i = entryBox.get_text()
-	r = Parser().read('repo_path')
-	d = Parser().read('device')
-	a = Parser().read('rom_abrv')
-	os.chdir(r)
-	Globals.TERM.fork_command('bash')
-	Globals.TERM.feed_child('clear\n')
-	Globals.TERM.feed_child('. build/envsetup.sh\n')
-	if a == "CM":
-		Globals.TERM.feed_child('lunch cm_%s-userdebug\n' % d)
-	else:
-		return
-	Globals.TERM.feed_child('time make -j%s %s\n' % (Globals.PROCESSORS, i))
-
-def run_local_shell():
-	Utils().ResetTerm()
-	Utils().update("Running bash shell")
-	Globals.TERM.set_background_saturation(0.3)
-	Globals.TERM.fork_command('bash')
-
-def tools_combo_change(w):
-	value = int(w.get_active())
-	if value == 0:
-		Utils().ViewConfig()
-	elif value == 1:
-		Utils().choose_repo_path()
-	elif value == 2:
-		remove_config()
-	elif value == 3:
-		Utils().run_custom_device()
-	elif value == 4:
-		openBuildFolder()
-	elif value == 5:
-		InstallPackages().runInstall()
-	elif value == 6:
-		InstallPackages().repo()
-	elif value == 7:
-		Utils().change_background()
-	elif value == 8:
-		About().main()
-	else:
-		pass
-
-def compile_combo_change(w):
-	value = int(w.get_active_text())
-	Parser().write("make_jobs", value)
-	Utils().update(None)
-
-def sync_combo_change(w):
-	value = int(w.get_active_text())
-	Parser().write("sync_jobs", value)
-	Utils().update(None)
-
-def rom_combo_change(w):
-	value = str(w.get_active_text())
-	num = int(w.get_active())
-	if num == 0:
-		value2 = "Android Open Source Project"
-	elif num == 1:
-		value2 = "CyanogenMod"
-	elif num == 2:
-		value2 = "Android Open Kang Project"
-	elif num == 3:
-		value2 = "Codename Android"
-	else:
-		value = "AOSC"
-		value2 = "Android Open Source Compiler"
-	Parser().write("rom_dist", value2)
-	Parser().write("rom_abrv", value)
-	Parser().write("branch", "Default")
-	Parser().write("device", "Default")
-	Parser().write("manuf", "Default")
-	Utils().update(None)
-
-def device_button(event):
-	Utils().Devices()
-	Utils().update(None)
-
-def run_button(event):
-	isit = None
-	r = Parser().read("repo_path")
-	os.chdir(r)
-	Globals.TERM.set_background_saturation(0.3)
-	Globals.TERM.fork_command('clear')
-	Globals.TERM.fork_command('bash')
-	if 	Globals.checkClobber.get_active() == True:
-		isit = True
-		Globals.TERM.feed_child('make clobber\n')
-
-	if Globals.checkSync.get_active() == True:
-		isit = True
-		Sync().run()
-
-	if Globals.checkCompile.get_active() == True:
-		isit = True
-		Compile().run()
-
-	if isit == None:
-		Utils().ResetTerm()
-
-def remove_config():
-	q = Utils().QDial("Remove config?", "Are you sure you want to remove your current config?\n\nOnce this is done it can't be undone.")
-	if q == True:
-		os.remove(cmcconfig)
-		Utils().CDial(gtk.MESSAGE_INFO, "Configuration removed", "Your configuration has been removed. Please restart the application to re-configure.")
-
-def start_adb():
-	if Utils().is_adb_running() == True:
-		(x, y) = Utils().choose_adb()
-		if x is not None:
-			Utils().update("Running adb for %ss" % y)
-			Globals.TERM.set_background_saturation(0.3)
-			Globals.TERM.fork_command('bash')
-			if x is "A":
-				Globals.TERM.feed_child("adb logcat\n")
-			else:
-				Globals.TERM.feed_child("adb logcat |grep \"%s/\"\n" % x)
-		else:
-			Utils().ResetTerm()
-	else:
-		Utils().CDial(DIALOG_ERROR, "Adb isn't running", "Need adb running to start, start it.\n\nPlease try again.")
-		Utils().ResetTerm()
-		return
-
-def toggle_term_btn():
-	if Globals.checkTermToggle.get_active() == True:
-		Parser().write("term_toggle", False)
-		Globals.checkTermToggle.set_active(False)
-	else:
-		Parser().write("term_toggle", True)
-		Globals.checkTermToggle.set_active(True)
-
-	update_widgets()
-
-def reset_button(widget):
-	if Globals.checkBashToggle.get_active() == True:
-		Globals.checkBashToggle.set_active(False)
-	if Globals.checkAdbToggle.get_active() == True:
-		Globals.checkAdbToggle.set_active(False)
-	Utils().ResetTerm()
-
-def checked_bash_toggle(widget):
-	if Globals.checkBashToggle.get_active() == True:
-		if Globals.checkTermToggle.get_active() == False:
-			Globals.checkTermToggle.set_active(True)
-			Parser().write("term_toggle", True)
-			update_widgets()
-
-		run_local_shell()
-	else:
-		Utils().ResetTerm()
-
-def checked_adb_toggle(widget):
-	if Globals.checkAdbToggle.get_active() == True:
-		if Globals.checkTermToggle.get_active() == False:	
-			Globals.checkTermToggle.set_active(True)
-			Parser().write("term_toggle", True)
-			update_widgets()
-			start_adb()
-		else:
-			start_adb()
-	else:
-		Utils().ResetTerm()
-
-def checked_term_toggle(widget):
-	if Globals.checkTermToggle.get_active() == True:
-		Parser().write("term_toggle", True)
-	else:
-		Parser().write("term_toggle", False)
-
-	update_widgets()
-
-def update_widgets():
-	(x, y) = Globals.MAIN_WIN.get_position()
-	x = int(x)
-	y = int(y)
-
-	if Parser().read("term_toggle") == True:
-		table.show()
-		statusFrame.hide()
-		Parser().write("term_toggle", True)
-
-	if Parser().read("term_toggle") == False:
-		table.hide()
-		statusFrame.show()
-		Parser().write("term_toggle", False)
-
-	Globals.MAIN_WIN.move(x, y)
-
-def hit_event_btn(obj, event, arg):
-	T = None
-	if arg == "Gmail":
-		url = "mailto:mrlithid@gmail.com"
-		T = True
-	elif arg == "Twitter":
-		url = "http://twitter.com/lithid"
-		T = True
-	elif arg == "GooglePlus":
-		url = "https://plus.google.com/u/0/103024643047948973176/posts"
-		T = True
-	elif arg == "Xda":
-		url = "http://forum.xda-developers.com/showthread.php?t=1789190"
-		T = True
-	elif arg == "Youtube":
-		url = "http://www.youtube.com/user/MrLithid"
-		T = True
-	elif arg == "Gallery":
-		url = "mailto:mrlithid@gmail.com"
-		T = True
-	else:
-		url = None
-
-	if T is not None:
-		subprocess.call(('xdg-open', url))
-	else:
-		Utils().CDial(DIALOG_ERROR, "No Url found!", "There is something wrong with the app. Report this. Returned: %s" % arg)
-
-######################################################################
-# Advanced
-######################################################################
 class advanced():
+
+	ASK_CONFIRM = Globals.AskConfirm
+	KEY_REPO_PATH = Globals.KeyRepoPath
+	TERM_FRAME_TABLE = Globals.TermFrameTable
+	STATUS_FRAME = Globals.StatusFrame
+	TOOLS_COMBO_LIST = Globals.ToolsComboList
+	KEY_WIN_X = Globals.KeyWinX
+	KEY_WIN_Y = Globals.KeyWinY
+	KEY_TERM_TOGGLE = Globals.KeyTermToggle
+	LINK_LIST = Globals.LinkList
+	TERM_FRAME_TABLE = Globals.TermFrameTable
+
+	toolsCombo = gtk.combo_box_new_text()
+	for i in TOOLS_COMBO_LIST:
+		toolsCombo.append_text(i)
+
+	romCombo = gtk.combo_box_new_text()
+	for i in ["AOSP", "CM", "AOKP", "CNA"]:
+		romCombo.append_text(i)
+
+	makeCombo = gtk.combo_box_new_text()
+	for i in range(1,Globals.PROCESSORS+1):
+		makeCombo.append_text(str(i))
+
+	syncCombo = gtk.combo_box_new_text()
+	for i in range(1,17):
+		syncCombo.append_text(str(i))
  
 	def main_quit(self, widget, event=None):
 		(x, y) = Globals.MAIN_WIN.get_position()
 		x = int(x)
 		y = int(y)
-		Parser().write(KEY_WIN_X, x)
-		Parser().write(KEY_WIN_Y, y)
+		Parser().write(self.KEY_WIN_X, x)
+		Parser().write(self.KEY_WIN_Y, y)
 		gtk.main_quit()
 
 	def on_key_press(self, widget, data=None):
 		i = gtk.gdk.keyval_name(data.keyval)
-
 		if i == "v" and data.state & gtk.gdk.CONTROL_MASK:
 			Utils().ViewConfig()
 		elif i == "a" and data.state & gtk.gdk.CONTROL_MASK:
@@ -352,26 +81,19 @@ class advanced():
 			Compile().run()
 		elif i == "r" and data.state & gtk.gdk.CONTROL_MASK:
 			Utils().choose_repo_path()
-		elif i == "x" and data.state & gtk.gdk.CONTROL_MASK or i == "Escape":
-			(x, y) = Globals.MAIN_WIN.get_position()
-			here = int(x)
-			there = int(y)
-			Parser().write(KEY_WIN_X, here)
-			Parser().write(KEY_WIN_Y, there)
-			gtk.main_quit()
+		elif  i == "Escape":
+			self.main_quit(None, None)
 		else:
 			pass
  
 	# Main program
 	def main(self):
-		def callback_termtoggle(widget, data=None):
-			update_widgets(str(data))
 
 		myMAIN_ICON = gtk.gdk.pixbuf_new_from_file(Globals.myICON)
 		Globals.MAIN_WIN.set_title(Globals.myMainTitle)
 		Globals.MAIN_WIN.set_icon(myMAIN_ICON)
-		x = Parser().read(KEY_WIN_X)
-		y = Parser().read(KEY_WIN_Y)
+		x = Parser().read(self.KEY_WIN_X)
+		y = Parser().read(self.KEY_WIN_Y)
 		x = int(x)
 		y = int(y)
 		Globals.MAIN_WIN.move(x, y)
@@ -390,7 +112,7 @@ class advanced():
 		resetImg = gtk.Image()
 		resetImg.set_from_file(Globals.DeviceImg)
 		Globals.resetBtn.set_image(resetImg)
-		Globals.resetBtn.connect("clicked", reset_button)
+		Globals.resetBtn.connect("clicked", Utils().reset_button)
 		Globals.resetBtn.set_size_request(40, 25)
 		Globals.resetBtn.show()
 		resetFrame.add(Globals.resetBtn)
@@ -398,11 +120,11 @@ class advanced():
 
 		toggleTermFrame = gtk.Frame()
 		toggleTermFrame.set_label_widget(Globals.toggleTermLab)
-		if Parser().read("term_toggle") == True:
+		if Parser().read(self.KEY_TERM_TOGGLE) == True:
 			Globals.checkTermToggle.set_active(True)
 		else:
 			Globals.checkTermToggle.set_active(False)
-		Globals.checkTermToggle.connect("clicked", checked_term_toggle)
+		Globals.checkTermToggle.connect("clicked", Utils().checked_term_toggle)
 		Globals.checkTermToggle.show()
 		toggleTermFrame.add(Globals.checkTermToggle)
 		hbox.add(toggleTermFrame)
@@ -410,7 +132,7 @@ class advanced():
 		toggleAdbFrame = gtk.Frame()
 		toggleAdbFrame.set_label_widget(Globals.toggleAdbLab)
 		Globals.checkAdbToggle.set_active(False)
-		Globals.checkAdbToggle.connect("clicked", checked_adb_toggle)
+		Globals.checkAdbToggle.connect("clicked", Utils().checked_adb_toggle)
 		Globals.checkAdbToggle.show()
 		toggleAdbFrame.add(Globals.checkAdbToggle)
 		hbox.add(toggleAdbFrame)
@@ -418,7 +140,7 @@ class advanced():
 		toggleBashFrame = gtk.Frame()
 		toggleBashFrame.set_label_widget(Globals.toggleBashLab)
 		Globals.checkBashToggle.set_active(False)
-		Globals.checkBashToggle.connect("clicked", checked_bash_toggle)
+		Globals.checkBashToggle.connect("clicked", Utils().checked_bash_toggle)
 		Globals.checkBashToggle.show()
 		toggleBashFrame.add(Globals.checkBashToggle)
 		hbox.add(toggleBashFrame)
@@ -426,31 +148,31 @@ class advanced():
 		toptable.attach(hbox, 0, 1, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		toptable.attach(Globals.aoscTitleLab, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
-		statusFrame.add(Globals.statusLab)
-		statusFrame.set_border_width(25)
-		statusFrame.set_label_widget(Globals.statusFrameLab)
+		self.STATUS_FRAME.add(Globals.statusLab)
+		self.STATUS_FRAME.set_border_width(25)
+		self.STATUS_FRAME.set_label_widget(Globals.statusFrameLab)
 
 		TERM_FRAME = gtk.Frame()
 		TERM_FRAME.set_size_request(1058, 390)
 		TERM_FRAME.add(Globals.TERM)
 
-		table.attach(TERM_FRAME, 0, 1, 0, 1, xpadding=10)
-		table.hide()
+		self.TERM_FRAME_TABLE.attach(TERM_FRAME, 0, 1, 0, 1, xpadding=10)
+		self.TERM_FRAME_TABLE.hide()
 
 		Globals.KEY_BIND_INFO.show()
 		Globals.aoscTitleLab.show()
 
 		# Build options
-		toolsCombo.show()
-		toolsCombo.set_wrap_width(2)
-		toolsCombo.set_size_request(32, 25)
-		toolsCombo.connect("changed", tools_combo_change)
+		self.toolsCombo.show()
+		self.toolsCombo.set_wrap_width(2)
+		self.toolsCombo.set_size_request(32, 25)
+		self.toolsCombo.connect("changed", Utils().tools_combo_change)
 
 		Globals.toolsLab.show()
 
-		romCombo.show()
-		romCombo.set_size_request(32, 25)
-		romCombo.connect("changed", rom_combo_change)
+		self.romCombo.show()
+		self.romCombo.set_size_request(32, 25)
+		self.romCombo.connect("changed", Utils().rom_combo_change)
 
 		Globals.romLab.show()
 
@@ -475,29 +197,29 @@ class advanced():
 		DevImg = gtk.Image()
 		DevImg.set_from_file(Globals.DeviceImg)
 		Globals.DEV_BTN.set_image(DevImg)
-		Globals.DEV_BTN.connect("clicked", device_button)
+		Globals.DEV_BTN.connect("clicked", Utils().device_button)
 		Globals.DEV_BTN.set_size_request(40, 25)
 		Globals.DEV_BTN.show()
 
 		Globals.deviceLab.show()
 
-		syncCombo.show()
-		syncCombo.set_wrap_width(4)
-		syncCombo.set_size_request(32, 25)
-		syncCombo.connect("changed", sync_combo_change)
+		self.syncCombo.show()
+		self.syncCombo.set_wrap_width(4)
+		self.syncCombo.set_size_request(32, 25)
+		self.syncCombo.connect("changed", Utils().sync_combo_change)
 
 		Globals.syncjobsLab.show()
 
-		makeCombo.show()
-		makeCombo.set_wrap_width(4)
-		makeCombo.set_size_request(32, 25)
-		makeCombo.connect("changed", compile_combo_change)
+		self.makeCombo.show()
+		self.makeCombo.set_wrap_width(4)
+		self.makeCombo.set_size_request(32, 25)
+		self.makeCombo.connect("changed", Utils().compile_combo_change)
 
 		Globals.makeLab.show()
 
 		optTable = gtk.Table(2, 1, False)
 		optTable.show()
-		optTable.attach(romCombo, 0, 1, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		optTable.attach(self.romCombo, 0, 1, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.romLab, 0, 1, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.aboutRomBtn, 1, 2, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.aboutRomLab, 1, 2, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
@@ -505,11 +227,11 @@ class advanced():
 		optTable.attach(Globals.branchLab, 2, 3, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.DEV_BTN, 3, 4, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.deviceLab, 3, 4, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		optTable.attach(syncCombo, 4, 5, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		optTable.attach(self.syncCombo, 4, 5, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.syncjobsLab, 4, 5, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		optTable.attach(makeCombo, 5, 6, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		optTable.attach(self.makeCombo, 5, 6, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.makeLab, 5, 6, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		optTable.attach(toolsCombo, 6, 7, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		optTable.attach(self.toolsCombo, 6, 7, 0, 1, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.attach(Globals.toolsLab, 6, 7, 1, 2, xpadding=15, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		optTable.set_border_width(5)
 		optFrame.add(optTable)
@@ -540,7 +262,7 @@ class advanced():
 		runImg = gtk.Image()
 		runImg.set_from_file(Globals.ClobImg)
 		Globals.runBtn.set_image(runImg)
-		Globals.runBtn.connect("clicked", run_button)
+		Globals.runBtn.connect("clicked", Utils().run_button)
 		Globals.runBtn.set_size_request(40, 25)
 		Globals.runBtn.show()
 
@@ -568,12 +290,12 @@ class advanced():
 		tableEntry = gtk.Table(1, 2, False)
 		tableEntry.show()
 
-		entryBox.show()
-		entryBox.connect("activate", run_vt_command)
+		Globals.packageEntryBox.show()
+		Globals.packageEntryBox.connect("activate", Utils().run_vt_command)
 
 		Globals.build_appLab.show()
 
-		tableEntry.attach(entryBox, 0, 1, 0, 1, ypadding=5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		tableEntry.attach(Globals.packageEntryBox, 0, 1, 0, 1, ypadding=5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		tableEntry.attach(Globals.build_appLab, 0, 1, 1, 2, xoptions=gtk.EXPAND)
 		tableEntry.set_border_width(5)
 
@@ -590,14 +312,14 @@ class advanced():
 		SpacerLinkL.show()
 
 		count = 0
-		for i in LINK_LIST:
+		for i in self.LINK_LIST:
 			count+=1
 			name = "%s/%s.png" % (Globals.myIMGS, i)
 			image = gtk.Image()
 			image.set_from_file(name)
 			image.show()
 			event = gtk.EventBox()
-			event.connect("button_press_event", hit_event_btn, i)
+			event.connect("button_press_event", Utils().press_link_button, i)
 			event.add(image)
 			event.set_size_request(26, 26)
 			event.show()
@@ -621,18 +343,18 @@ class advanced():
 		tableB.attach(linksFrame, 2, 3, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
 		MAIN_VBOX.pack_start(toptable, False, False, 0)
-		MAIN_VBOX.pack_start(statusFrame, True, True, 0)
-		MAIN_VBOX.pack_start(table, True, True, 0)
+		MAIN_VBOX.pack_start(self.STATUS_FRAME, True, True, 0)
+		MAIN_VBOX.pack_start(self.TERM_FRAME_TABLE, True, True, 0)
 		MAIN_VBOX.pack_start(opthbox, True, True, 0)
 		MAIN_VBOX.pack_start(tableB, True, True, 0)
 		MAIN_VBOX.pack_start(Globals.KEY_BIND_INFO, False, False, 10)
 
-		Utils().update_background()
+		Update().background()
 
 		Globals.MAIN_WIN.add(MAIN_VBOX)
 		Globals.MAIN_WIN.show_all()
-		update_widgets()
-		Utils().update(None)
+		Update().widgets()
+		Update().main(None)
 		gtk.main()
 
 def main():
@@ -641,7 +363,9 @@ def main():
 
 if __name__ == "__main__":
 
-	chk_config()
+	A = advanced()
+
+	Utils().chk_config()
 	
 	if not os.path.exists(Globals.myCONF):
 		Parser().write("branch", None)
@@ -662,8 +386,8 @@ if __name__ == "__main__":
 	if not os.path.exists(Globals.myDEF_REPO_PATH):
 		os.mkdir(Globals.myDEF_REPO_PATH)
 	
-	if not os.path.exists(ASK_CONFIRM):
-		get_askConfirm()
+	if not os.path.exists(A.ASK_CONFIRM):
+		Utils().get_askConfirm()
 
-	advanced().main()
+	A.main()
 

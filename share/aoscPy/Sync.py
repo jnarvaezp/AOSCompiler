@@ -5,27 +5,30 @@ import os
 
 from Globals import Globals
 from Parser import Parser
-from Utils import Utils
+from Update import Update
+from Dialogs import Dialogs
+from RepoHelper import RepoHelper
+from Tools import Tools
 
 class Sync():
 	def run(self):
-		repo = Utils().which("repo")
+		repo = Tools().which("repo")
 		if repo == None:
-			Utils().CDial(gtk.MESSAGE_INFO, "Repo is not installed", "You need to install repo to continue.")
-			Utils().update(None)
+			Dialogs().CDial(gtk.MESSAGE_INFO, "Repo is not installed", "You need to install repo to continue.")
+			Update().main(None)
 			return
 		r = Parser().read("repo_path")
-		url = Utils().getBranchUrl("init")
+		url = RepoHelper().getBranchUrl("init")
 		b = Parser().read("branch")
 		j = Parser().read("sync_jobs")
-		Utils().update("Repo syncing with %s jobs for %s" % (j, b))
+		Update().main("Repo syncing with %s jobs for %s" % (j, b))
 		if not os.path.exists(r):
 			os.mkdir(r)
 		Globals.TERM.feed_child("cd %s\n" % r)
 		if not os.path.exists("%s/.repo" % r):
 			Globals.TERM.feed_child("repo init -u %s -b %s\n" % (url, b))
 			Globals.TERM.feed_child("y\n")
-			Utils().CDial(gtk.MESSAGE_INFO, "Running repo init!", "You needed to init the repo, doing that now.")
+			Dialogs().CDial(gtk.MESSAGE_INFO, "Running repo init!", "You needed to init the repo, doing that now.")
 		Globals.TERM.feed_child("repo sync -j%s\n" % j)
 		Globals.TERM.feed_child("echo \"Complete\"\n")
 

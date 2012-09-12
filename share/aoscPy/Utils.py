@@ -8,12 +8,38 @@ import urllib2
 import re
 import shutil
 import commands
+import subprocess
 
 from Globals import Globals
+from About import About
 from FileChooser import FileChooser
+from InstallPackages import InstallPackages
+from Dialogs import Dialogs
+from Update import Update
 from Parser import Parser
+from Sync import Sync
+from Compile import Compile
+from RepoHelper import RepoHelper
+from Tools import Tools
 
 class Utils():
+
+	CONFIG_DIR = Globals.myCONF_DIR
+	TOOLS_COMBO_LIST = Globals.ToolsComboList
+	KEY_DEVICE = Globals.KeyDevice
+	KEY_REPO_PATH = Globals.KeyRepoPath
+	KEY_TERM_TOGGLE = Globals.KeyTermToggle
+	KEY_WIN_X = Globals.KeyWinX
+	KEY_WIN_Y = Globals.KeyWinY
+	STR_USER_CONFIRM = Globals.StrUserConfirm
+	ASK_CONFIRM = Globals.AskConfirm
+	ASK_CONFIRM_INFO = Globals.AskConfirmInfo
+	LINK_LIST = Globals.LinkList
+	TARGET_OUT = Globals.TargetOut
+	DIALOG_ERROR = Globals.DialogError
+	TARGET_OUT = Globals.TargetOut
+	TERM_FRAME_TABLE = Globals.TermFrameTable
+	STATUS_FRAME = Globals.StatusFrame
 
 	def is_adb_running(self):
 		running = False
@@ -68,7 +94,7 @@ class Utils():
 					label.set_padding(5, 5)
 					table.attach(label, 0, 1, count-1, count)
 		except IOError:
-			Utils().CDial(gtk.MESSAGE_ERROR, "Failed reading configuration", "Can't currently read the config file.\n\nIs it open somewhere else?\n\nPlease try again.")
+			Dialogs().CDial(gtk.MESSAGE_ERROR, "Failed reading configuration", "Can't currently read the config file.\n\nIs it open somewhere else?\n\nPlease try again.")
 
 		dialog.run()
 		dialog.destroy()
@@ -87,7 +113,7 @@ class Utils():
 
 	def getManu(self, device):
 		s = None
-		FILE = Utils().deviceFile()
+		FILE = self.deviceFile()
 		if FILE is not None:
 			paths = glob("device/*/*/%s" % FILE)
 		else:
@@ -101,22 +127,6 @@ class Utils():
 					s = i
 
 		return s
-
-	def which(self, program):
-		def is_exe(fpath):
-			return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-		fpath, fname = os.path.split(program)
-		if fpath:
-			if is_exe(program):
-				return program
-		else:
-			for path in os.environ["PATH"].split(os.pathsep):
-				exe_file = os.path.join(path, program)
-				if is_exe(exe_file):
-					return exe_file
-
-		return None
 
 	def choose_branch(self, obj):
 		branchList = []
@@ -173,7 +183,7 @@ class Utils():
 
 		dialog.run()
 		dialog.destroy()
-		Utils().update(None)
+		Update().main(None)
 
 	def aboutRom(self, obj):
 		r = Parser().read("rom_dist")
@@ -212,7 +222,7 @@ class Utils():
 			try:
 				imgurl = urllib2.urlopen(i)
 			except:
-				Utils().CDial(gtk.MESSAGE_ERROR, "Failed reading url", "Can't read\n\n%s\n\nMaybe something is wrong with the server, or the internet connection.\n\nPlease try again later." % i)
+				Dialogs().CDial(gtk.MESSAGE_ERROR, "Failed reading url", "Can't read\n\n%s\n\nMaybe something is wrong with the server, or the internet connection.\n\nPlease try again later." % i)
 				return
 			loader = gtk.gdk.PixbufLoader()
 			loader.write(imgurl.read())
@@ -240,7 +250,7 @@ class Utils():
 		def callback_device(widget, data=None):
 			Parser().write("device", data)
 
-		BR = Utils().getBranchUrl("raw")
+		BR = RepoHelper().getBranchUrl("raw")
 		if BR == None:
 			return
 
@@ -266,7 +276,7 @@ class Utils():
 		try:
 			filehandle = urllib.urlopen(BR)
 		except IOError:
-			Utils().CDial(gtk.MESSAGE_ERROR, "Can't read file!", "Can't read the file to setup devices!\n\nPlease check you internet connections and try again!")
+			Dialogs().CDial(gtk.MESSAGE_ERROR, "Can't read file!", "Can't read the file to setup devices!\n\nPlease check you internet connections and try again!")
 
 		button_count = 0
 		if VERBOSE == True:
@@ -325,45 +335,17 @@ class Utils():
 		dialog.run()
 		dialog.destroy()
 
-	def getBranchUrl(self, arg):
-		BR = None
-		b = Parser().read("branch")
-		b = b.strip()
-		a = Parser().read("rom_abrv")
-		a = a.strip()
-		if b == "Default":
-			Utils().CDial(gtk.MESSAGE_ERROR, "No branch choosen", "Please select a branch so I know which device list to pull.\n\nThanks!")
-			return
-
-		if a == "CM":
-			from projects.CyanogenMod import CyanogenMod as CM
-			BR = CM().getBranch(arg)
-		elif a == "CNA":
-			from projects.CodenameAndroid import CodenameAndroid as CNA
-			BR = CNA().getBranch(arg)
-		elif a == "AOSP":
-			from projects.AOSP import AOSP as AOSP
-			BR = AOSP().getBranch(arg)
-		elif a == "AOKP":
-			from projects.AOKP import AOKP as AOKP
-			BR = AOKP().getBranch(arg)
-		else:
-			pass
-
-		return BR
-
 	def ResetTerm(self):
 		Globals.checkAdbToggle.set_active(False)
 		Globals.TERM.set_background_saturation(1.0)
 		Globals.TERM.fork_command('clear')
-		Utils().update(None)
+		Update().main(None)
 
 	def choose_repo_path(self):
-		print "Here"
 		RESPONSE = FileChooser().getFolder()
 		if RESPONSE is not None:
 			Parser().write("repo_path", RESPONSE)
-			Utils().update(None)
+			Update().main(None)
 
 	def cust_background_dialog(self):
 		IMG = FileChooser().getFile()
@@ -372,62 +354,11 @@ class Utils():
 			test = im.what(IMG)
 			if test:
 				Parser().write("background", IMG)
-				Utils().update_background()
+				Update().background()
 			else:
-				Utils().CDial(gtk.MESSAGE_ERROR, "File not an image!", "Please use images for backgrounds!\n\nFile:\n%s" % IMG)
+				Dialogs().CDial(gtk.MESSAGE_ERROR, "File not an image!", "Please use images for backgrounds!\n\nFile:\n%s" % IMG)
 
 		return
-
-	def update_background(self):
-		if Parser().read("background") is None:
-			IMG = Globals.myTermWall
-		else:
-			IMG = Parser().read("background")
-
-		Globals.TERM.set_background_image_file(IMG)
-
-	def update(self, status):
-		b = Parser().read("branch")
-		d = Parser().read("device")
-		p = Parser().read("repo_path")
-		r = Parser().read("rom_dist")
-		a = Parser().read("rom_abrv")
-		if status == None:
-			stat = "Waiting for command..."
-		else:
-			stat = status
-		(x, y) = Globals.MAIN_WIN.get_position()
-		here = int(x)
-		there = int(y)
-		Globals.branchLab.set_markup("<small>Branch: <b>%s</b></small>" % b)
-		Globals.LinkContact.set_markup("<small>Contact</small>")
-		Globals.runLab.set_markup("<small>Run</small>")
-		Globals.romLab.set_markup("<small>Rom: <b>%s</b></small>" % a)
-		Globals.aboutRomLab.set_markup("<small>About</small>")
-		Globals.toolsLab.set_markup("<small>Options</small>")
-		Globals.deviceLab.set_markup("<small>Device: <b>%s</b></small>" % d)
-		Globals.aoscTitleLab.set_markup("<span font=\"18\">%s</span>" % r)
-		Globals.syncjobsLab.set_markup("<small>Sync: <b>%s</b></small>" % Parser().read("sync_jobs"))
-		Globals.makeLab.set_markup("<small>Make: <b>%s</b></small>" % Parser().read("make_jobs"))
-		Globals.compileLab.set_markup("<small>Compile</small>")
-		Globals.runFrameLab.set_markup("<small>Run options</small>")
-		Globals.statusFrameLab.set_markup("<small>Status: <small><span color=\"red\">Check terminal for status output to see if jobs are complete.</span></small></small>")
-		Globals.statusLab.set_markup("<span font=\"25\" variant=\"normal\">%s\n</span>" % stat)
-		Globals.toggleTermLab.set_markup("<small>Terminal</small>")
-		Globals.toggleAdbLab.set_markup("<small>Adb log</small>")
-		Globals.toggleBashLab.set_markup("<small>Bash shell</small>")
-		Globals.resetLab.set_markup("<small>Stop/reset</small>")
-		Globals.contactFrameLab.set_markup("<small>Contact</small>")
-		Globals.buildFrameLab.set_markup("<small>Build options</small>")
-		Globals.syncLab.set_markup("<small>Sync</small>")
-		Globals.clobberLab.set_markup("<small>Clobber</small>")
-		Globals.build_appLab.set_markup("<small><small>Build specific <b>app/binary</b> here. :: <b>enter</b> ::</small></small>")
-		Globals.KEY_BIND_INFO.set_markup("<small><small><small>Left control + [<b>v</b>:View config | <b>a</b>:Start adb | <b>m</b>:Start/stop | <b>t</b>:Toggle Term | <b>s</b>:Sync | <b>b</b>:build/compile | <b>r</b>:Repo path | <b>esc</b>:Quit]</small></small></small>")
-		if not os.path.exists(p):
-			Utils().CDial(gtk.MESSAGE_ERROR, "No Folder Found!", "Path: %s\n\nDoes not exist and it needs to to continue." % p)
-			Utils().choose_repo_path()
-
-		Globals.MAIN_WIN.move(here, there)
 
 	def run_custom_device(self):
 		title = "Setup custom device"
@@ -472,6 +403,8 @@ class Utils():
 			m = entry1.get_text()
 			u = entry2.get_text()
 			b = entry3.get_text()
+			if not n or m or u or b:
+				return
 			r = Parser().read("repo_path")
 			os.chdir(r)
 			manu_path = "%s/device/%s" % (r,m)
@@ -484,7 +417,7 @@ class Utils():
 			Globals.TERM.fork_command('bash')
 			Globals.TERM.feed_child('git clone %s -b %s %s\n' % (u,b,n))
 		else:
-			Utils().CDial(gtk.MESSAGE_INFO, "Skipping this", "No changes have been made!")
+			Dialogs().CDial(gtk.MESSAGE_INFO, "Skipping this", "No changes have been made!")
 		dialog.destroy()
 
 	def choose_adb(self):
@@ -578,31 +511,240 @@ class Utils():
 		if r == gtk.RESPONSE_ACCEPT:
 			if WHICH is "Default":
 				Parser().write("background", None)
-				Utils().update_background()
+				Update().background()
 			elif WHICH is "Custom":
-				Utils().cust_background_dialog()
+				self.cust_background_dialog()
 			else:
 				return None
 		else:
 			return None
 
-	def CDial(self, dialog_type, title, message):
-		dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, type=dialog_type, buttons=gtk.BUTTONS_OK)
-		dialog.set_markup(title)
-		dialog.format_secondary_markup(message)
-		dialog.run()
-		dialog.destroy()
-		return True
-
-	def QDial(self, title, message):
-		dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO)
-		dialog.set_markup(title)
-		dialog.format_secondary_markup(message)
-		response = dialog.run()
-		dialog.destroy()
-
-		if response == gtk.RESPONSE_YES:
-			return True
+	def press_link_button(self, obj, event, arg):
+		T = True
+		if arg == "Gmail":
+			url = "mailto:mrlithid@gmail.com"
+		elif arg == "Twitter":
+			url = "http://twitter.com/lithid"
+		elif arg == "GooglePlus":
+			url = "https://plus.google.com/u/0/103024643047948973176/posts"
+		elif arg == "Xda":
+			url = "http://forum.xda-developers.com/showthread.php?t=1789190"
+		elif arg == "Youtube":
+			url = "http://www.youtube.com/user/MrLithid"
+		elif arg == "Gallery":
+			url = "mailto:mrlithid@gmail.com"
 		else:
-			return False
+			T = None
+			url = None
+
+		if T is not None:
+			subprocess.call(('xdg-open', url))
+		else:
+			Dialogs().CDial(DIALOG_ERROR, "No Url found!", "There is something wrong with the app. Report this. Returned: %s" % arg)
+
+	def openBuildFolder(self):
+		r = Parser().read(self.KEY_REPO_PATH)
+		d = Parser().read(self.KEY_DEVICE)
+		t = self.TARGET_OUT % (r, d)
+		if os.path.exists(t):
+			subprocess.call(('xdg-open', t))
+		else:
+			Dialogs().CDial(self.DIALOG_ERROR, 'No out folder', 'Need to compile before you can do this silly!')
+
+	def chk_config(self):
+		if not os.path.exists(self.CONFIG_DIR):
+			os.makedirs(self.CONFIG_DIR)
+
+	def get_askConfirm(self):
+		def askedClicked():
+			if not os.path.exists(self.ASK_CONFIRM):
+				file(self.ASK_CONFIRM, 'w').close()
+		q = Dialogs().QDial(self.STR_USER_CONFIRM, self.ASK_CONFIRM_INFO)
+		if q == True:
+			askedClicked()
+		else:
+			exit()
+
+	def run_vt_command(self, event):
+		i = Globals.packageEntryBox.get_text()
+		r = Parser().read(self.KEY_REPO_PATH)
+		d = Parser().read(self.KEY_DEVICE)
+		a = Parser().read('rom_abrv')
+		if not os.path.exists("%s/.repo" % r):
+			RepoHelper().run_no_repo_found()
+			return
+		os.chdir(r)
+		Globals.TERM.set_background_saturation(0.3)
+		Globals.TERM.fork_command('bash')
+		Globals.TERM.feed_child('clear\n')
+		Globals.TERM.feed_child('. build/envsetup.sh\n')
+		if a == "CM":
+			Globals.TERM.feed_child('lunch cm_%s-userdebug\n' % d)
+		else:
+			return
+		Globals.TERM.feed_child('time make -j%s %s\n' % (Globals.PROCESSORS, i))
+
+	def run_local_shell(self):
+		self.ResetTerm()
+		Update().main("Running bash shell")
+		Globals.TERM.set_background_saturation(0.3)
+		Globals.TERM.fork_command('bash')
+
+	def tools_combo_change(self, w):
+		value = int(w.get_active())
+		if value == 0:
+			self.ViewConfig()
+		elif value == 1:
+			self.choose_repo_path()
+		elif value == 2:
+			self.remove_config()
+		elif value == 3:
+			self.run_custom_device()
+		elif value == 4:
+			self.openBuildFolder()
+		elif value == 5:
+			InstallPackages().runInstall()
+		elif value == 6:
+			InstallPackages().repo()
+		elif value == 7:
+			self.change_background()
+		elif value == 8:
+			About().main()
+		else:
+			pass
+
+	def compile_combo_change(self, w):
+		value = int(w.get_active_text())
+		Parser().write("make_jobs", value)
+		Update().main(None)
+
+	def sync_combo_change(self, w):
+		value = int(w.get_active_text())
+		Parser().write("sync_jobs", value)
+		Update().main(None)
+
+	def rom_combo_change(self, w):
+		value = str(w.get_active_text())
+		num = int(w.get_active())
+		if num == 0:
+			value2 = "Android Open Source Project"
+		elif num == 1:
+			value2 = "CyanogenMod"
+		elif num == 2:
+			value2 = "Android Open Kang Project"
+		elif num == 3:
+			value2 = "Codename Android"
+		else:
+			value = "AOSC"
+			value2 = "Android Open Source Compiler"
+		Parser().write("rom_dist", value2)
+		Parser().write("rom_abrv", value)
+		Parser().write("branch", "Default")
+		Parser().write("device", "Default")
+		Parser().write("manuf", "Default")
+		Update().main(None)
+
+	def device_button(self, event):
+		self.Devices()
+		Update().main(None)
+
+	def run_button(self, event):
+		isit = None
+		r = Parser().read("repo_path")
+		os.chdir(r)
+		Globals.TERM.set_background_saturation(0.3)
+		Globals.TERM.fork_command('clear')
+		Globals.TERM.fork_command('bash')
+		if 	Globals.checkClobber.get_active() == True:
+			isit = True
+			if not os.path.exists("%s/.repo" % r):
+				RepoHelper().run_no_repo_found()
+				Globals.TERM.set_background_saturation(1.0)
+				Globals.TERM.fork_command('clear')
+				return
+				
+			Globals.TERM.feed_child('make clobber\n')
+
+		if Globals.checkSync.get_active() == True:
+			isit = True
+			Sync().run()
+
+		if Globals.checkCompile.get_active() == True:
+			isit = True
+			Compile().run()
+
+		if isit == None:
+			self.ResetTerm()
+
+	def remove_config(self):
+		q = Dialogs().QDial("Remove config?", "Are you sure you want to remove your current config?\n\nOnce this is done it can't be undone.")
+		if q == True:
+			os.remove(cmcconfig)
+			Dialogs().CDial(gtk.MESSAGE_INFO, "Configuration removed", "Your configuration has been removed. Please restart the application to re-configure.")
+
+	def start_adb(self):
+		if Utils().is_adb_running() == True:
+			(x, y) = self.choose_adb()
+			if x is not None:
+				Update().main("Running adb for %ss" % y)
+				Globals.TERM.set_background_saturation(0.3)
+				Globals.TERM.fork_command('bash')
+				if x is "A":
+					Globals.TERM.feed_child("adb logcat\n")
+				else:
+					Globals.TERM.feed_child("adb logcat |grep \"%s/\"\n" % x)
+			else:
+				self.ResetTerm()
+		else:
+			Dialogs().CDial(self.DIALOG_ERROR, "Adb isn't running", "Need adb running to start, start it.\n\nPlease try again.")
+			self.ResetTerm()
+			return
+
+	def toggle_term_btn(self):
+		if Globals.checkTermToggle.get_active() == True:
+			Parser().write(KEY_TERM_TOGGLE, False)
+			Globals.checkTermToggle.set_active(False)
+		else:
+			Parser().write(KEY_TERM_TOGGLE, True)
+			Globals.checkTermToggle.set_active(True)
+
+		Update().widgets()
+
+	def reset_button(self, widget):
+		if Globals.checkBashToggle.get_active() == True:
+			Globals.checkBashToggle.set_active(False)
+		if Globals.checkAdbToggle.get_active() == True:
+			Globals.checkAdbToggle.set_active(False)
+		self.ResetTerm()
+
+	def checked_bash_toggle(self, widget):
+		if Globals.checkBashToggle.get_active() == True:
+			if Globals.checkTermToggle.get_active() == False:
+				Globals.checkTermToggle.set_active(True)
+				Parser().write(self.KEY_TERM_TOGGLE, True)
+				Update().widgets()
+
+			self.run_local_shell()
+		else:
+			self.ResetTerm()
+
+	def checked_adb_toggle(self, widget):
+		if Globals.checkAdbToggle.get_active() == True:
+			if Globals.checkTermToggle.get_active() == False:	
+				Globals.checkTermToggle.set_active(True)
+				Parser().write(self.KEY_TERM_TOGGLE, True)
+				Update().widgets()
+				self.start_adb()
+			else:
+				self.start_adb()
+		else:
+			self.ResetTerm()
+
+	def checked_term_toggle(self, widget):
+		if Globals.checkTermToggle.get_active() == True:
+			Parser().write(self.KEY_TERM_TOGGLE, True)
+		else:
+			Parser().write(self.KEY_TERM_TOGGLE, False)
+
+		Update().widgets()
 

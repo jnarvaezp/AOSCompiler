@@ -6,7 +6,8 @@ import platform
 import commands
 
 from Globals import Globals
-from Utils import Utils
+from Update import Update
+from Dialogs import Dialogs
 
 def chkInstalled(arg):
 
@@ -40,13 +41,16 @@ def getLinux(arg):
 
 class InstallPackages():
 	def repo(self):
-		Utils().update("Installing repo...")
-		Globals.TERM.set_background_saturation(0.3)
-		Globals.TERM.fork_command("bash")
-		Globals.TERM.feed_child("clear\n")
-		Globals.TERM.feed_child("curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > repo\n")
-		Globals.TERM.feed_child("chmod a+x repo\n")
-		Globals.TERM.feed_child("gksudo mv repo /usr/local/bin/repo\n")
+		q = Dialogs().QDial("Install repo script", "Are you sure you want to install the repo script?\n\nThis will ask for root!")
+		if q == True:
+			Update().main("Installing repo...")
+			Globals.TERM.set_background_saturation(0.3)
+			Globals.TERM.fork_command("bash")
+			Globals.TERM.feed_child("clear\n")
+			Globals.TERM.feed_child("curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > repo\n")
+			Globals.TERM.feed_child("chmod a+x repo\n")
+			Globals.TERM.feed_child("gksudo mv repo /usr/local/bin/repo\n")
+		return
 		
 
 	def Ubuntu(self, version):
@@ -85,10 +89,10 @@ class InstallPackages():
 						L.extend([x])
 		print len(L)
 		if len(L) == 0:
-			Utils().CDial(gtk.MESSAGE_INFO, "Empty package list", "You already have the packages you need installed!")
+			Dialogs().CDial(gtk.MESSAGE_INFO, "Empty package list", "You already have the packages you need installed!")
 		else:
 			packages = ",".join(L).replace(",", " ")
-			q = Utils().QDial("Are you sure??", "We are going to install this list of packages\n\n%s\n\n Are you sure we should proceed?" % packages)
+			q = Dialogss().QDial("Are you sure??", "We are going to install this list of packages\n\n%s\n\n Are you sure we should proceed?" % packages)
 			if q == True:
 				Globals.TERM.set_background_saturation(0.3)
 				Globals.TERM.fork_command("bash")
@@ -103,5 +107,5 @@ class InstallPackages():
 			V = getLinux("Version")
 			InstallPackages().Ubuntu(V)
 		else:
-			Utils().CDial(gtk.MESSAGE_WARNING, "Linux Distro", "Sorry, we couldn't detect your linux distro. File a bug report with this info:\n\n<b>Distro: </b>%s\n<b>Version: </b>%s\n<b>Name: </b>%s\n" % (plat_d, plat_v, plat_n))
+			Dialogs().CDial(gtk.MESSAGE_WARNING, "Linux Distro", "Sorry, we couldn't detect your linux distro. File a bug report with this info:\n\n<b>Distro: </b>%s\n<b>Version: </b>%s\n<b>Name: </b>%s\n" % (plat_d, plat_v, plat_n))
 

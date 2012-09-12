@@ -8,6 +8,7 @@ import os
 from ..Globals import Globals
 from ..Parser import Parser
 from ..Utils import Utils
+from ..Dialogs import Dialogs
 
 ######################################################################
 # About
@@ -49,7 +50,7 @@ class CodenameAndroid():
 		b = Parser().read("branch")
 		m = Utils().getManu(d)
 		if m == None:
-			Utils().CDial(gtk.MESSAGE_INFO, "Couldn't find device manufacturer", "Please try again.\n\nReturned: %s" % m)
+			Dialogs().CDial(gtk.MESSAGE_INFO, "Couldn't find device manufacturer", "Please try again.\n\nReturned: %s" % m)
 			return
 
 		Parser().write("manuf", m)
@@ -61,7 +62,7 @@ class CodenameAndroid():
 				Globals.TERM.feed_child('./extract-files.sh\n')
 				Globals.TERM.feed_child("cd %s\n" % r)
 			else:
-				Utils().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb to setup vendor files.\n\nIs this something you are going to do yourself?\n\nPlease try again.")
+				Dialogs().CDial(gtk.MESSAGE_ERROR, "Adb isn't running", "Need adb to setup vendor files.\n\nIs this something you are going to do yourself?\n\nPlease try again.")
 				Globals.TERM.set_background_saturation(1.0)
 				Globals.TERM.feed_child('clear\n')
 				return

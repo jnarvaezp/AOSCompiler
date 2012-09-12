@@ -50,6 +50,7 @@ class Globals():
 	KeyDevice = 'device'
 	KeyWinX = 'win_x'
 	KeyWinY = 'win_y'
+	KeyTermToggle = 'term_toggle'
 
 	PROCESSORS = Tools().processor()
 
@@ -60,7 +61,7 @@ class Globals():
 	mylist = []
 
 	# Info stuff
-	AskConfirmInfo = ('<small>By no means what so ever is this software or cyanogenmod responsible for what you do to your phone. '
+	AskConfirmInfo = ('<small>By no means what so ever is this software responsible for what you do to your phone. '
 			'You are taking the risks, you are choosing to this to your phone. By proceeding you are aware, you are warned. No crying or moaning. This software '
 			'was tested by human beings, not cybogs from your mothers closet. Please keep this in mind when something breaks, or hangs.  If you have an issue '
 			'with this software, please let me know.\n\nBy clicking this ok button, you have given me your soul.\n\nPlay safe.\n\n</small> '
@@ -68,11 +69,11 @@ class Globals():
 			'<small><b>-</b><i> Cyanogenmod doesn\'t consider source builds offical, please keep this in mind if you plan on bug reporting.</i></small></small>\n\n'
 			'Any bugs? Please report them:\n\nhttp://github.com/lithid/AOSCompiler/issues\n')
 
-	about_info = ('The cyanogenmod compiler was written, not to dismiss the need'
+	about_info = ('The Android Open Source Compiler was written, not to dismiss the need'
 			'to learn the android system, but to release the need consistly remember menial tasks.\n\n'
 			'Please intend to learn the system, contribute back to any upstream.\n\n'
-			'Happy compiling,\n\nCode: Jeremie Long\n'
-			'Any bugs? Please report them\n\n'
+			'Happy compiling,\n\nCode: Jeremie Long\n\n'
+			'Any bugs? Please report them\n'
 			'http://github.com/lithid/Cmcompiler/issues\n')
 
 	AdbList = (['All', 'Verbose', 'Debug', 'Info', 'Warning', 'Error', 'Fatal'])
@@ -81,6 +82,8 @@ class Globals():
 	ToolsComboList = ['View config', 'Repo path', 'Remove config', 'Add device', 'Open rom folder', 'Install packages', 'Install repo', 'Change background', 'About']
 	LinkList = ["Gmail", "Twitter", "GooglePlus", "Xda", "Youtube", "Gallery"]
 
+	TermFrameTable = gtk.Table(1, 3, False)
+	StatusFrame = gtk.Frame()
 	MAIN_WIN = gtk.Window(gtk.WINDOW_TOPLEVEL)
 	DEV_BTN = gtk.Button()
 	runBtn = gtk.Button()
@@ -117,6 +120,7 @@ class Globals():
 	checkTermToggle = gtk.CheckButton()
 	checkAdbToggle = gtk.CheckButton()
 	checkBashToggle = gtk.CheckButton()
+	packageEntryBox = gtk.Entry()
 	TERM = vte.Terminal()
 	TERM.set_font_from_string(myTermFont)
 	TERM.set_background_saturation(1.0)
