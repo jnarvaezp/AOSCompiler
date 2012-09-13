@@ -63,6 +63,7 @@ class CyanogenMod():
 		r = Parser().read("repo_path")
 		d = Parser().read("device")
 		b = Parser().read("branch")
+		MAKE = Parser().read("make_jobs")
 		os.chdir(r)
 		m = Utils().getManu(d)
 		Globals.TERM.feed_child('clear\n')
@@ -100,4 +101,4 @@ class CyanogenMod():
 			Globals.TERM.feed_child("lunch cyanogen_%s-eng\n" % d)
 		else:
 			Globals.TERM.feed_child("lunch cm_%s-userdebug\n" % d)
-		Globals.TERM.feed_child("time make -j%s otapackage\n" % Globals.PROCESSORS)
+		Globals.TERM.feed_child("time make -j%s otapackage\n" % MAKE)

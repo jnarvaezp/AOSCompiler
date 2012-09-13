@@ -558,6 +558,7 @@ class Utils():
 		r = Parser().read(self.KEY_REPO_PATH)
 		d = Parser().read(self.KEY_DEVICE)
 		a = Parser().read('rom_abrv')
+		MAKE = Parser().read("make_jobs")
 		if not os.path.exists("%s/.repo" % r):
 			RepoHelper().run_no_repo_found()
 			return
@@ -570,7 +571,7 @@ class Utils():
 			Globals.TERM.feed_child('lunch cm_%s-userdebug\n' % d)
 		else:
 			return
-		Globals.TERM.feed_child('time make -j%s %s\n' % (Globals.PROCESSORS, i))
+		Globals.TERM.feed_child('time make -j%s %s\n' % (MAKE, i))
 
 	def run_local_shell(self):
 		self.ResetTerm()

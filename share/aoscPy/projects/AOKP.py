@@ -59,6 +59,7 @@ class AOKP():
 		r = Parser().read("repo_path")
 		d = Parser().read("device")
 		b = Parser().read("branch")
+		MAKE = Parser().read("make_jobs")
 		m = Utils().getManu(d)
 		if m == None:
 			Dialogs().CDial(gtk.MESSAGE_INFO, "Couldn't find device manufacturer", "Please try again.\n\nReturned: %s" % m)
@@ -84,4 +85,4 @@ class AOKP():
 
 		Globals.TERM.feed_child('source build/envsetup.sh\n')
 		Globals.TERM.feed_child("lunch aokp_%s-userdebug\n" % d)
-		Globals.TERM.feed_child("time make -j%s otapackage\n" % Globals.PROCESSORS)
+		Globals.TERM.feed_child("time make -j%s otapackage\n" % MAKE)
