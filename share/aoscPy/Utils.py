@@ -99,21 +99,9 @@ class Utils():
 		dialog.run()
 		dialog.destroy()
 
-	def deviceFile(self):
-		FILE = None
-		a = Parser().read("rom_abrv")
-		b = Parser().read("branch")
-		if a == "CM":
-			if b == "gb":
-				FILE = "device.mk"
-			if b == "ics" or b == "jellybean":
-				FILE = "cm.mk"
-
-		return FILE
-
 	def getManu(self, device):
 		s = None
-		FILE = self.deviceFile()
+		FILE = "BoardConfig.mk"
 		if FILE is not None:
 			paths = glob("device/*/*/%s" % FILE)
 		else:
