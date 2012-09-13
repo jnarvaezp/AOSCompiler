@@ -20,7 +20,7 @@ class Compile():
 			return
 		ab = Parser().read("rom_abrv")
 		if ab == "CM":
-			from projects.CyanogenMod import CyanogenMod as CM 
+			from projects.CyanogenMod import CyanogenMod as CM
 			Update().main("Compiling CyanogenMod")
 			CM().Compile()
 		elif ab == "CNA":
