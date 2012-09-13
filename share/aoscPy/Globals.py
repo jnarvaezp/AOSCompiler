@@ -80,7 +80,7 @@ class Globals():
 	AdbList = (['All', 'Verbose', 'Debug', 'Info', 'Warning', 'Error', 'Fatal'])
 	AdbTooltipList = ['Show all log output', 'Only show verbose, low priority output', 'Only show debug output', 'Show information output', 'Show app and package warnings', 
 			'Show application and package errors', 'Show critial or fatal errors']
-	ToolsComboList = ['View config', 'Repo path', 'Remove config', 'Add device', 'Open rom folder', 'Install packages', 'Install repo', 'Change background', 'About']
+	ToolsComboList = ['View config', 'Repo path', 'Remove config', 'Add device', 'Open rom folder', 'Install packages', 'Install repo', 'Change background', 'About', 'Remove Repo']
 	LinkList = ["Gmail", "Twitter", "GooglePlus", "Xda", "Youtube", "Gallery"]
 
 	TermFrameTable = gtk.Table(1, 3, False)

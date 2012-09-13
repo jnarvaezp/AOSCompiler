@@ -599,8 +599,89 @@ class Utils():
 			self.change_background()
 		elif value == 8:
 			About().main()
+		elif value == 9:
+			self.remove_repo()
 		else:
 			pass
+
+	def remove_repo(self):
+
+		RMBUTTON = gtk.Button()
+		REPO_NAME = None
+		REPOS = Tools().custom_list_dir(Globals.myHOME, ".repo")
+		if REPOS is None:
+			Dialogs().CDial(gtk.MESSAGE_INFO, "No repos configured.", "There are not repos configured. Please sync a repo first!")
+			return
+
+		def callback_radio(widget, data=None):
+			L = data.split("/")
+			L = L[-1]
+			RMBUTTON.set_label("Remove: %s" % L)
+			global REPO_NAME
+			REPO_NAME = data
+
+		def del_repo_paths(widget):
+			global REPO_NAME
+			REPO_NAME = str(REPO_NAME.strip())
+			if REPO_NAME is not "None":
+				q = Dialogs().QDial("Remove repos: %s?" % REPO_NAME, "Are you sure you want to remove:\n %s\n\nOnce this is done it can't be undone." % REPO_NAME)
+				if q is not True:
+					return
+			if REPO_NAME == "All":
+				for x in REPOS:
+					if os.path.isdir(x):
+						if Parser().read("repo_path") == x:
+							Parser().write("repo_path", Globals.myDEF_REPO_PATH)
+						shutil.rmtree(x)
+						dialog.destroy()
+						Update().main(None)
+			elif REPO_NAME == "None":
+				pass
+			else:
+				if os.path.isdir(REPO_NAME):
+					if Parser().read("repo_path") == REPO_NAME:
+						Parser().write("repo_path", Globals.myDEF_REPO_PATH)
+					shutil.rmtree(REPO_NAME)
+					dialog.destroy()
+					Update().main(None)
+
+		a = Parser().read("rom_abrv")
+		dialog = gtk.Dialog("Remove installed repos", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		dialog.set_size_request(500, 400)
+		dialog.set_resizable(False)
+
+		scroll = gtk.ScrolledWindow()
+		scroll.set_border_width(10)
+		scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+		scroll.set_size_request(400, 325)
+		dialog.vbox.pack_start(scroll, True, True, 0)
+		scroll.show()
+
+		table = gtk.Table(2, 1, False)
+		table.set_row_spacings(5)
+
+		scroll.add_with_viewport(table)
+		table.show()
+
+		radiobtn = gtk.RadioButton(None, None)
+
+		button_count = 0
+		REPOS.append("All")
+		REPOS.append("None")
+		for radio in REPOS:
+			button_count+=1
+			button = gtk.RadioButton(group=radiobtn, label="%s" % (radio))
+			button.connect("toggled", callback_radio, "%s" % (radio))
+			table.attach(button, 0, 1, button_count-1, button_count, xoptions=gtk.FILL, yoptions=gtk.SHRINK)
+			button.show()
+
+		RMBUTTON.set_label("Remove: None")
+		RMBUTTON.connect("clicked", del_repo_paths)
+		RMBUTTON.show()
+		dialog.vbox.pack_start(RMBUTTON, True, True, 0)
+
+		dialog.run()
+		dialog.destroy()
 
 	def compile_combo_change(self, w):
 		value = int(w.get_active_text())
