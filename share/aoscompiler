@@ -70,7 +70,7 @@ class advanced():
 		if i == "v" and data.state & gtk.gdk.CONTROL_MASK:
 			Utils().ViewConfig()
 		elif i == "a" and data.state & gtk.gdk.CONTROL_MASK:
-			start_adb()
+			Utils().start_adb()
 		elif i == "m" and data.state & gtk.gdk.CONTROL_MASK:
 			Utils().ResetTerm()
 		elif i == "s" and data.state & gtk.gdk.CONTROL_MASK:
