@@ -47,7 +47,7 @@ class Utils():
 		x = cmd.split(" ")
 		print x
 		for i in x:
-			if i == "device":
+			if "device\n" in i:
 				running = True
 
 		return running
