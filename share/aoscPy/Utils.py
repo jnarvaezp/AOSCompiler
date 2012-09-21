@@ -45,9 +45,9 @@ class Utils():
 		running = False
 		cmd = commands.getoutput("adb devices")
 		x = cmd.split(" ")
-		x = x[4]
-		if "device" in x:
-			running = True
+		for i in x:
+			if i == "device":
+				running = True
 
 		return running
 
