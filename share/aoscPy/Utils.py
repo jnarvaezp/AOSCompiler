@@ -570,7 +570,7 @@ class Utils():
 		Globals.TERM.feed_child('clear\n')
 		Globals.TERM.feed_child('. build/envsetup.sh\n')
 		if a == "CM":
-			if b not "gingerbread":
+			if b is not "gingerbread":
 				Globals.TERM.feed_child('lunch cm_%s-userdebug\n' % d)
 			else:
 				Globals.TERM.feed_child('lunch cm_%s-eng\n' % d)
