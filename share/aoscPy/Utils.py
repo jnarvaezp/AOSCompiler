@@ -559,6 +559,7 @@ class Utils():
 		r = Parser().read(self.KEY_REPO_PATH)
 		d = Parser().read(self.KEY_DEVICE)
 		a = Parser().read('rom_abrv')
+		b = Parser().read('branch')
 		MAKE = Parser().read("make_jobs")
 		if not os.path.exists("%s/.repo" % r):
 			RepoHelper().run_no_repo_found()
@@ -569,7 +570,10 @@ class Utils():
 		Globals.TERM.feed_child('clear\n')
 		Globals.TERM.feed_child('. build/envsetup.sh\n')
 		if a == "CM":
-			Globals.TERM.feed_child('lunch cm_%s-userdebug\n' % d)
+			if b not "gingerbread":
+				Globals.TERM.feed_child('lunch cm_%s-userdebug\n' % d)
+			else:
+				Globals.TERM.feed_child('lunch cm_%s-eng\n' % d)
 		else:
 			return
 		Globals.TERM.feed_child('time make -j%s %s\n' % (MAKE, i))
