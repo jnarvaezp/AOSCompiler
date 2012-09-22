@@ -13,6 +13,16 @@ Install debhelper as a dep:
 
 Run make to compile/install:
 
-    Usage: make [package|install|clean] or all
+    Usage: make
+    debian or [deb-pack|deb-install|deb-clean]
+    archlinux or [arch-pack|arch-install|arch-clean]
+
+Debian:
+
+    make debian
+
+Archlinux:
+
+    make archlinux
 
 Please let me know if there are any issues using this code!
